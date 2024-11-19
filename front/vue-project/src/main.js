@@ -1,5 +1,4 @@
-import './assets/main.css'
-
+// main.js
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
@@ -12,3 +11,6 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+// 추가함. Pinia와 Axios를 글로벌 속성으로 설정?
+app.config.globalProperties.$axios = axios 
