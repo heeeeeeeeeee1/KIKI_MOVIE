@@ -31,7 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 CUSTOM_APPS = [
-
+    'accounts.apps.AccountsConfig',
+    'movies.apps.MoviesConfig',
 ]
 
 SYSTEM_APPS = [
