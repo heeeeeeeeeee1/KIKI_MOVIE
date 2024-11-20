@@ -31,8 +31,21 @@ ALLOWED_HOSTS = []
 # Application definition
 
 CUSTOM_APPS = [
+    # 추가 앱 (accounts, movies)
     'accounts.apps.AccountsConfig',
     'movies.apps.MoviesConfig',
+    'rest_framework',
+    # CORS policy
+    "corsheaders",
+    # Auth
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    # registration
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
 ]
 
 SYSTEM_APPS = [
@@ -46,7 +59,14 @@ SYSTEM_APPS = [
 
 INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
 
-MIDDLEWARE = [
+SITE_ID = 1
+
+CUSTOM_MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
+]
+
+SYSTEM_MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -55,6 +75,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+MIDDLEWARE = CUSTOM_MIDDLEWARE + SYSTEM_MIDDLEWARE
 
 ROOT_URLCONF = 'my_pjt.urls'
 
@@ -131,3 +153,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Auth
 AUTH_USER_MODEL = 'accounts.User'
+
+CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
+
+REST_FRAMEWORK = {
+    # Authentication
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+
+    # permission
+    'DEFAULT_PERMISSION_CLASSES': [
+        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+
+# 이메일 인증 관련
