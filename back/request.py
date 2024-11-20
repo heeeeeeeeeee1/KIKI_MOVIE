@@ -1,7 +1,8 @@
 import requests
 import json
+from django.conf import settings
 
-API_KEY = "700c493de1fec79592154b7cb6361039"
+API_KEY = settings.TMDB_API_KEY
 BASE_URL = 'https://api.themoviedb.org/3'
 LAST_PAGE = 4    # TMDB API의 한 페이지에 포함된 데이터: 기본적으로 20개의 항목(4페이지라면 20*4)
 

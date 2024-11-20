@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings    # 이거 필요한가        
+from django.conf import settings 
 
 # 영화 정보 DB - 영화와 N:M 관계
 class Actor(models.Model): # 배우 DB
@@ -32,10 +32,6 @@ class Video(models.Model): # 비디오 DB
     site = models.CharField(max_length=50)
     movie = models.ForeignKey('Movie', on_delete=models.CASCADE, related_name='videos')
 
-# class Provider(models.Model): # 공급 DB
-#     id = models.IntegerField(primary_key=True)
-#     name = models.CharField(max_length=50)
-
 
 class Movie(models.Model):  # 영화 DB
     id = models.IntegerField(primary_key=True)
@@ -59,7 +55,6 @@ class Movie(models.Model):  # 영화 DB
     actors = models.ManyToManyField(Actor, blank=True)
     directors = models.ManyToManyField(Director, blank=True)
     keywords = models.ManyToManyField(Keyword, blank=True)
-    # providers = models.ManyToManyField(Provider, blank=True)
 
 
 class Review(models.Model): # 리뷰
