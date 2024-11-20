@@ -8,3 +8,6 @@ class User(AbstractUser):
     ]
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True)
     birth_date = models.DateField(null=True)
+
+    def __str__(self):
+        return self.username
