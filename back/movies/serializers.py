@@ -32,15 +32,21 @@ class VideoListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# 영화 조회
-
-class MovieListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = '__all__'
+# 전체 영화 조회 -> 메인페이지 사용?
 
 
+
+# 영화 단일 조회
 class MovieSerializer(serializers.ModelSerializer):
+    genres = GenreListSerializer(many=True, read_only=True)
+    actors = ActorListSerializer(many=True, read_only=True)
+    directors = DirectorListSerializer(many=True, read_only=True)
+    keywords = KeywordListSerializer(many=True, read_only=True)
+    videos = VideoListSerializer(many=True, read_only=True)
+
     class Meta:
         model = Movie
         fields = '__all__'
+        
+# - 영화 가져올 때 해당 영화 리뷰?
+# - 리뷰 가져올 때 해당 댓글도 같이?
