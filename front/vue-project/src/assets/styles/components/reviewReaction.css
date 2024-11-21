@@ -1,0 +1,33 @@
+.review-reaction-container {
+  display: flex;
+  width: 90%;
+  justify-content: space-between;
+  margin: 0 auto;
+  padding: 0.25rem;
+  border-top: 1px solid var(--real-gray);
+  border-bottom: 1px solid var(--real-gray);
+}
+.review-reaction-container button {
+  border: none;
+  width: 50%;
+  background-color: inherit;
+  color: white;
+  border-radius: 0.25rem;
+  padding: 0.5rem 0;
+}
+.review-reaction-container button:first-child {
+  position: relative;
+}
+.review-reaction-container button:first-child::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 65%;
+  background-color: var(--real-gray);
+}
+.review-reaction-container button:hover {
+  background-color: var(--real-gray);
+}

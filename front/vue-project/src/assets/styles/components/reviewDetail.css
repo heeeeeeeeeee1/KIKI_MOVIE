@@ -1,0 +1,54 @@
+.review-detail-container {
+  width: 80%;
+  display: flex;
+  margin: 2rem auto 0;
+  color: white;
+}
+
+.detail-left {
+  width: calc(100% - 200px);
+}
+.info-review {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+.info-review > div > span:last-child {
+  margin-left: 1rem;
+}
+.info-review > button {
+  border: none;
+}
+.content-review > h2 {
+  font-size: 1.5rem;
+  margin: 1.5rem 0;
+  font-weight: bold;
+}
+
+.detail-right {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: end;
+}
+.detail-right div {
+  width: 200px;
+  height: 300px;
+  overflow: hidden;
+}
+.detail-right img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+.detail-right button {
+  color: white;
+  background-color: inherit;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  margin: 0.5rem 0;
+}
+.detail-right button:hover {
+  background-color: var(--blue-gray);
+}
