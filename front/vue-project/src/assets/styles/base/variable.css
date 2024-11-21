@@ -1,3 +1,10 @@
 :root {
-  --brn-light-blue: #007bff;
+  --light-blue: #007bff;
+  --dark-blue: #011240;
+  --real-blue: #1700e5;
+  --light-gray: #d9d9d9;
+  --blue-gray: #686978;
+  --real-gray: #505356;
+  --dark-gray: #2B2E30;
+  --card-black: #111111;
 }
