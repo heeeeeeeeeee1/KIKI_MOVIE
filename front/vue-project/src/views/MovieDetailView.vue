@@ -1,17 +1,17 @@
 <!-- MovieDetailView.vue -->
 <template>
     <h1>영화 상세 정보 페이지</h1>
-    <div class="movie-detail">
+    <div class="movie-detail" v-if="movie">
         <!-- 좌측 영화 포스터 -->
-        <img :src="movie.poster_path" alt="poster" />
+        <img :src="movie.poster_path || '/default-poster.png'" alt="poster" />
 
         <!-- 우측 영화 정보 -->
         <div>
             <h1>{{ movie.title }}</h1>
             <h1>{{ movie.original_title }}</h1>
-            <p>출연진: {{ movie.actors.join(', ')}} </p>
+            <p>출연진: {{ movie.actors}} </p>
             <p>감독: {{ movie.directors}} </p>
-            <p>장르: {{ movie.genre.join(', ')}} </p>
+            <p>장르: {{ movie.genre}} </p>
             <p>개봉일: {{ movie.release_date}} </p>
             <p>{{ movie.description }} </p>
 
@@ -55,13 +55,14 @@ import SingleReview from '@/components/SingleReview.vue'
 
 const route = useRoute()
 const movieStore = useMovieStore()
-const { movie, reviews, getMovies } = movieStore
+const { movie, reviews, getMovie } = movieStore
 
 // 컴포넌트가 마운트되면 영화 데이터 로드
 onMounted(() => {
-  getMovies(route.params.moviePk); // URL의 id를 기반으로 영화 데이터 요청
+    console.log("MoviePk:", route.params.moviePk); // MoviePk 값을 확인
+    getMovie(route.params.moviePk); // URL의 id를 기반으로 영화 데이터 요청
 })
-
+console.log(movie)
 </script>
 
 
