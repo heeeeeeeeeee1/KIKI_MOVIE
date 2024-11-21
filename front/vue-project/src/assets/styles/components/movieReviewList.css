@@ -1,0 +1,46 @@
+.reviews-title h3 {
+  font-size: 1.5rem;
+  margin: 2rem 0 1.5rem;
+}
+
+.review-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+.review-item {
+  background-color: var(--dark-gray);
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.review-item .item__author {
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  border-bottom: 1px solid var(--real-gray);
+}
+.item__desc-container {
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+}
+.review-item .item__content {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: auto;
+  margin-bottom: 1rem;
+  line-height: 1.4rem;
+}
+
+.review-item .item__reaction {
+  border-top: 1px solid var(--real-gray);
+  padding-top: 0.5rem;
+}

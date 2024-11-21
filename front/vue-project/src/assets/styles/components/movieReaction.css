@@ -1,0 +1,17 @@
+button {
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 0.25rem;
+  color: white;
+  background-color: var(--real-gray);
+}
+button:hover {
+  background-color: var(--dark-gray);
+}
+
+button:first-child {
+  margin-right: 1.25rem;
+}
+button.active {
+  background-color: var(--light-blue);
+}

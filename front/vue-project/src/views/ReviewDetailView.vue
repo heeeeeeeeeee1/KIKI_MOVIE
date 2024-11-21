@@ -22,9 +22,9 @@
 
 <script setup>
 import { ref } from "vue";
-import ReviewDetail from "@/components/ReviewDetail.vue";
-import ReviewReaction from "@/components/ReviewReaction.vue";
-import ReviewComments from "@/components/ReviewComments.vue";
+import ReviewDetail from "@/components/reviewDetail.vue";
+import ReviewReaction from "@/components/reviewReaction.vue";
+import ReviewComments from "@/components/reviewComments.vue";
 
 const title = ref("영화 제목");
 const poster = ref("");
