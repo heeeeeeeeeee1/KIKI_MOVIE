@@ -1,7 +1,9 @@
-import { createRouter, createWebHistory } from "vue-router";
-import SignUpView from "@/views/SignUpView.vue";
+import { createRouter, createWebHistory } from "vue-router"
+import SignUpView from "@/views/SignUpView.vue"
 import LogInView from "@/views/LogInView.vue"
 import { useCounterStore } from '@/stores/counter'
+import DetailView from "@/views/DetailView.vue" // 영화 상세 정보
+import SingleReview from "@/components/SingleReview.vue" // 단일 리뷰 정보
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,6 +18,16 @@ const router = createRouter({
       name: 'LogInView',
       component: LogInView
     },
+    {
+      path: "/movies/:moviePk/detail",
+      name: "DetailView",
+      component: DetailView, // 영화 상세 페이지
+    },
+    // {
+    //   path: "/movies/:moviePk/review/:reviewPk",
+    //   name: "SingleReview",
+    //   component: SingleReview, // 단일 리뷰 상세 페이지
+    // },
   ],
 });
 
