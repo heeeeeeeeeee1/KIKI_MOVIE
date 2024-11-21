@@ -1,12 +1,18 @@
+<style>
+@import "@/assets/styles/base/reset.css";
+@import "@/assets/styles/base/variable.css";
+@import "@/assets/styles/base/main.css";
+</style>
+
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
-import { useCounterStore } from '@/stores/counter'
+import { useCounterStore } from "@/stores/counter";
 
-const store = useCounterStore()
+const store = useCounterStore();
 
 const logOut = function () {
-  store.logOut()
-}
+  store.logOut();
+};
 </script>
 
 <template>
@@ -17,13 +23,16 @@ const logOut = function () {
       <a href="">영화</a>
       <!-- <RouterLink :to="{ name: 'home' }">홈</RouterLink>
       <RouterLink :to="{ name: 'movie' }">영화</RouterLink> -->
-
     </nav>
     <nav class="right-users">
-      <RouterLink :to="{ name: 'SignUpView' }" class="users__signup">회원가입</RouterLink>
-      <RouterLink :to="{ name: 'LogInView' }" class="users__login">로그인</RouterLink>
+      <RouterLink :to="{ name: 'SignUpView' }" class="users__signup"
+        >회원가입</RouterLink
+      >
+      <RouterLink :to="{ name: 'LogInView' }" class="users__login"
+        >로그인</RouterLink
+      >
       <form @submit.prevent="logOut">
-        <input type="submit" value="Logout" class="users__logout">
+        <input type="submit" value="Logout" class="users__logout" />
       </form>
     </nav>
   </header>
@@ -115,7 +124,12 @@ nav {
 nav.right-users {
   justify-content: flex-end;
 }
-nav > a, span, .logo, .users__logout, .users__signup, .users__login {
+nav > a,
+span,
+.logo,
+.users__logout,
+.users__signup,
+.users__login {
   text-decoration: none;
   color: white;
 }
