@@ -6,7 +6,7 @@ import ReviewDetailView from "@/views/ReviewDetailView.vue";
 
 import { useCounterStore } from "@/stores/counter";
 
-import DetailView from "@/views/MovieDetailView.vue"; // 영화 상세 정보
+import MovieDetailView from "@/views/MovieDetailView.vue"; // 영화 상세 정보
 // import SingleReview from "@/components/SingleReview.vue"; // 단일 리뷰 정보
 
 const router = createRouter({
@@ -29,8 +29,8 @@ const router = createRouter({
     },
     {
       path: "/movies/",
-      name: "DetailView",
-      component: DetailView, // 영화 상세 페이지
+      name: "MovieDetailView",
+      component: MovieDetailView, // 영화 상세 페이지
     },
     // {
     //   path: "/movies/:moviePk/review/:reviewPk",
