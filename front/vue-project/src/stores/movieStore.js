@@ -12,6 +12,9 @@ export const useMovieStore = defineStore('movieStore', () => {
   const reviews = ref([]); // 리뷰 리스트
   const singleReview = ref(null) // 단일 리뷰 데이터
 
+
+  console.log("현재 저장된 토큰:", token.value) // 토큰 확인용 로그
+
   // 단일 영화 정보 가져오기
   const getMovie = function (moviePk) {
     axios({
@@ -47,5 +50,5 @@ export const useMovieStore = defineStore('movieStore', () => {
       console.error('단일 리뷰를 가져오는 중 오류:', err.response?.data || err.message)
     })
   }
-  return { movie, movies, reviews, API_URL, token, getMovie, getSingleReview }
+  return { movie, movies, isLogin, reviews, API_URL, token, getMovie, getSingleReview }
 })
