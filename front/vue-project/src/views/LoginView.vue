@@ -6,13 +6,23 @@
         <form @submit.prevent="logIn">
           <div class="form__input">
             <label for="username">유저 ID</label>
-            <input type="text" id="username" v-model.trim="username" placeholder="유저 이름을 입력해주세요"><br>
+            <input
+              type="text"
+              id="username"
+              v-model.trim="username"
+              placeholder="유저 이름을 입력해주세요"
+            /><br />
           </div>
           <div class="form__input">
             <label for="password">비밀번호</label>
-            <input type="password" id="password" v-model.trim="password" placeholder="8자 이상 입력해주세요 (문자/숫자/기호 사용 기능)"><br>
+            <input
+              type="password"
+              id="password"
+              v-model.trim="password"
+              placeholder="8자 이상 입력해주세요 (문자/숫자/기호 사용 기능)"
+            /><br />
           </div>
-          <input type="submit" value="로그인">
+          <input type="submit" value="로그인" />
         </form>
         <div class="password_signup">
           <a href="" class="find-password_btn">비밀번호를 잃어버리셨나요?</a>
@@ -38,22 +48,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useCounterStore } from '@/stores/counter'
+import { ref } from "vue";
+import { useCounterStore } from "@/stores/counter";
 
-const username = ref(null)
-const password = ref(null)
+const username = ref(null);
+const password = ref(null);
 
-const store = useCounterStore()
+const store = useCounterStore();
 
 const logIn = function () {
   const payload = {
     username: username.value,
-    password: password.value
-  }
-  store.logIn(payload)
-}
-
+    password: password.value,
+  };
+  store.logIn(payload);
+};
 </script>
 
 <style scoped>
@@ -176,7 +185,6 @@ input[type="submit"] {
   border-radius: 50%;
   background-color: white;
   padding: 0.5rem;
-
 }
 .social-login > div > img {
   width: 100%;

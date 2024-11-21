@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import SignUpView from "@/views/SignUpView.vue";
-import LogInView from "@/views/LogInView.vue";
+import LogInView from "@/views/LoginView.vue";
 import ReviewDetailView from "@/views/ReviewDetailView.vue";
 
 import { useCounterStore } from "@/stores/counter";
