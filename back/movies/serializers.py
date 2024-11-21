@@ -31,9 +31,25 @@ class VideoListSerializer(serializers.ModelSerializer):
         model = Video
         fields = '__all__'
 
+# --------------------------------------------------
 
-# 전체 영화 조회 -> 메인페이지 사용?
+# 댓글
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()  # 사용자 이름만 출력
 
+    class Meta:
+        model = Comment
+        fields = ['id', 'content', 'created_at', 'user']
+
+
+# 리뷰
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()  # 사용자 이름만 출력
+    comments = CommentSerializer(many=True, read_only=True)  # 연결된 댓글 포함
+
+    class Meta:
+        model = Review
+        fields = ['id', 'content', 'score', 'created_at', 'user', 'comments']
 
 
 # 영화 단일 조회
@@ -43,6 +59,7 @@ class MovieSerializer(serializers.ModelSerializer):
     directors = DirectorListSerializer(many=True, read_only=True)
     keywords = KeywordListSerializer(many=True, read_only=True)
     videos = VideoListSerializer(many=True, read_only=True)
+    reviews = ReviewSerializer(many=True, read_only=True)  # 연결된 리뷰 포함
 
     class Meta:
         model = Movie
@@ -50,3 +67,7 @@ class MovieSerializer(serializers.ModelSerializer):
         
 # - 영화 가져올 때 해당 영화 리뷰?
 # - 리뷰 가져올 때 해당 댓글도 같이?
+
+
+
+# 전체 영화 조회 -> 메인페이지 사용?
