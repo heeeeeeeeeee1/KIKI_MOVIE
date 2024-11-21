@@ -25,15 +25,20 @@ const logOut = function () {
       <RouterLink :to="{ name: 'movie' }">영화</RouterLink> -->
     </nav>
     <nav class="right-users">
-      <RouterLink :to="{ name: 'SignUpView' }" class="users__signup"
-        >회원가입</RouterLink
-      >
-      <RouterLink :to="{ name: 'LogInView' }" class="users__login"
-        >로그인</RouterLink
-      >
-      <form @submit.prevent="logOut">
-        <input type="submit" value="Logout" class="users__logout" />
-      </form>
+      <div v-if="!store.isLogin">
+        <RouterLink :to="{ name: 'SignUpView' }" class="users__signup"
+          >회원가입</RouterLink
+        >
+        <RouterLink :to="{ name: 'LogInView' }" class="users__login"
+          >로그인</RouterLink
+        >
+      </div>
+      <div v-else>
+        <a href="">{{ store.username }}</a>
+        <form @submit.prevent="logOut">
+          <input type="submit" value="Logout" class="users__logout" />
+        </form>
+      </div>
     </nav>
   </header>
   <RouterView />

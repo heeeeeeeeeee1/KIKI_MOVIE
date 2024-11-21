@@ -67,7 +67,7 @@ export const useCounterStore = defineStore('counter', () => {
     })
       .then((res) => {
         token.value = res.data.key
-        router.push({ name: 'ArticleView' })
+        router.push({ name: 'MainHomeView' })
         // console.log(res.data)
         // console.log('로그인 성공')
       })
@@ -85,7 +85,7 @@ export const useCounterStore = defineStore('counter', () => {
       .then((res) => {
         console.log(res.data)
         token.value = null
-        router.push({ name: 'ArticleView' })
+        router.push({ name: 'MainHomeView' })
       })
       .catch((err) => {
         console.log(err)

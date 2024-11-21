@@ -5,6 +5,7 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import axios from "axios"; // HTTP 요청 라이브러리 (npm install로 추가함)
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 // 로컬에서 작성한 파일들(앱 컴포넌트 및 라우터)을 import함
 import App from "./App.vue";
 import router from "./router";
@@ -12,8 +13,8 @@ import router from "./router";
 // Vue 애플리케이션 생성 및 플러그인 등록
 const app = createApp(App);
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 
-// pinia.use(piniaPluginPersistedstate)
 app.use(pinia);
 app.use(router);
 
