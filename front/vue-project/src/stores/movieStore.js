@@ -1,32 +1,51 @@
 // movieStore.js
 import axios from 'axios'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useRouter } from 'vue-router'
 
-// 환경변수 설정
-// const API_KEY = import.meta.env.VITE_TMDB_API_KEY
+export const useMovieStore = defineStore('movieStore', () => {
+  const API_URL = 'http://127.0.0.1:8000'
+  const token = ref(localStorage.getItem('token')); // 인증 토큰
+  
+  const movies = ref([]) // 단일 영화 데이터 저장
+  const reviews = ref([]); // 리뷰 리스트
+  const singleReview = ref(null) // 단일 리뷰 데이터
 
-
-export const useMovieStore = defineStore('movie', () => {
-  const movies = ref([])
-  const error = ref(null) // 이거 필수야?
-
-  const getMovieData = () => {
+  // 영화 정보 가져오기
+  const getMovies = function (moviePk) {
     axios({
       method: "get",
-      url: "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
+      url: `${API_URL}/movies/${moviePk}/detail/`,
       headers: { 
-        Authorization: 
-        // api 키. 환경변수로 설정
+        Authorization: `Token ${token.value}`
       },
     })  
-    .then((response) => {
-      console.log(response.data)
+    .then((res) => {
+      movies.value = res.data // 영화데이터 저장
+      reviews.value = res.data.reviews; // 리뷰 리스트 저장
     })
-    .catcch((err) => {
-      console.log(response.data)
+    .catch((err) => {
+      console.error("영화 데이터를 가져오는 중 오류:", err.response?.data || err.message)
     })
   }
-  return { getMovieData }
-})
 
+
+  // 리뷰 정보 가져오기
+  const getSingleReview = function (moviePk, reviewPk) {
+    axios({
+      method: "get",
+      url: `${API_URL}/movies/${moviePk}/review/${reviewPk}/`,
+      headers: { 
+        Authorization: `Token ${token.value}`,
+      },
+    })  
+    .then((res) => {
+      singleReview.value = res.data
+    })
+    .catch((err) => {
+      console.error('단일 리뷰를 가져오는 중 오류:', err.response?.data || err.message)
+    })
+  }
+  return { movies, reviews, API_URL, token, getMovies, getSingleReview }
+})
