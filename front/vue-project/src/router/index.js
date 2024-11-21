@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+import MainHomeView from "@/views/MainHomeView.vue";
 import SignUpView from "@/views/SignUpView.vue";
 import LogInView from "@/views/LoginView.vue";
 import ReviewDetailView from "@/views/ReviewDetailView.vue";
@@ -12,6 +13,11 @@ import MovieDetailView from "@/views/MovieDetailView.vue"; // 영화 상세 정�
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: "/",
+      name: "MainHomeView",
+      component: MainHomeView,
+    },
     {
       path: "/signup",
       name: "SignUpView",
