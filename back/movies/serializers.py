@@ -51,6 +51,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'content', 'score', 'created_at', 'user', 'comments']
 
+# ---------------------------------------------------------------
 
 # 영화 단일 조회
 class MovieSerializer(serializers.ModelSerializer):

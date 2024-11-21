@@ -1,6 +1,13 @@
+import os
+import django
 import requests
 import json
 from django.conf import settings
+
+# Django 설정 초기화
+# 초기화 미시행시, Django 설정(settings.py)을 사용할 때, DJANGO_SETTINGS_MODULE 환경 변수가 설정되지 않아서 오류 발생
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "my_pjt.settings")  # "your_project"를 실제 프로젝트 이름으로 변경
+django.setup()
 
 API_KEY = settings.TMDB_API_KEY
 BASE_URL = 'https://api.themoviedb.org/3'
@@ -9,6 +16,9 @@ LAST_PAGE = 4    # TMDB API의 한 페이지에 포함된 데이터: 기본적�
 # TMDB API 요청 함수
 def response_data(url):
     response = requests.get(url)
+    if response.status_code != 200:
+        print(f"API 요청 실패: {url}, 상태 코드: {response.status_code}")
+        return {}
     return response.json()
 
 
@@ -100,34 +110,49 @@ def fetch_movies():
     for PAGE in range(1, LAST_PAGE + 1):
         url = f'{BASE_URL}/movie/popular?api_key={API_KEY}&language=ko-KR&page={PAGE}'
         data = response_data(url)
-        movies = data.get('results',[])  # result 값 가져오고, 못 가져오면 빈리스트(기본값)
+        movies = data.get('results', [])  # result 값 가져오고, 못 가져오면 빈 리스트
 
         for movie in movies:  # movie는 딕셔너리
             # 상세 정보 가져오기
-            additional_details = fetch_movie_details(movie['id'])   # 위에서 정의한 영화 상세 정보 가져오는 함수 활용
+            additional_details = fetch_movie_details(movie['id'])
 
+            # 추가: 영화와 관계된 데이터 연결 (Many-To-Many)
+            movie_genres = additional_details['genres']  # 장르 ID 리스트
+            movie_credits_url = f'{BASE_URL}/movie/{movie["id"]}/credits?api_key={API_KEY}&language=ko-KR'
+            credits_data = response_data(movie_credits_url)  # 배우 및 감독 정보
+
+            # 배우 ID만 추출
+            actor_ids = [cast["id"] for cast in credits_data.get("cast", [])]
+
+            # 감독 ID만 추출
+            director_ids = [
+                crew["id"] for crew in credits_data.get("crew", []) if crew["job"] == "Director"
+            ]
+
+            # Movie 데이터 생성
             movies_data.append({
-                "model": "movies.Movie",  # 'app_name'을 Django 앱 이름으로 변경
+                "model": "movies.Movie",
                 "pk": movie['id'],  # 기본 키
                 "fields": {
-                    "id": movie['id'],
                     'title': movie['title'],
                     'original_title': movie['original_title'],
                     'description': movie['overview'],
                     'release_date': movie['release_date'],
-                    # "created_at": current_date,  # 현재 날짜 추가
-                    'vote_average': movie['vote_average'], 
+                    'vote_average': movie['vote_average'],
                     'poster_path': movie['poster_path'],
-                    # 'video_path': video_path,  # 비디오 경로 추가
                     'popularity': movie['popularity'],
-                    'runtime': additional_details['runtime'],  # 상세 정보에서 가져온 데이터
-                    'status': additional_details['status'],    # 상세 정보에서 가져온 데이터
-                    'tagline': additional_details['tagline'],  # 상세 정보에서 가져온 데이터
+                    'runtime': additional_details['runtime'],
+                    'status': additional_details['status'],
+                    'tagline': additional_details['tagline'],
                     'adult': movie['adult'],
-                    # 'genre': ", ".join(genres),  # 장르 이름을 쉼표로 구분한 문자열  
+                    "genres": movie_genres,  # 장르 ID 리스트 (ManyToMany 관계)
+                    "actors": actor_ids,    # 배우 ID 리스트 (ManyToMany 관계)
+                    "directors": director_ids  # 감독 ID 리스트 (ManyToMany 관계)
                 }
-            })    
+            })
+
     save_to_json(movies_data, 'movies.json')
+
 
 
 
@@ -197,3 +222,40 @@ fetch_credits()        # 배우 및 감독 데이터 저장
 fetch_videos()  # 비디오 데이터 저장
 fetch_keywords()       # 키워드 데이터 저장
 
+
+# --------------------------------------------------------------
+
+# 생성된 json파일 병합
+import json
+
+def merge_json_files(output_file, *input_files):
+    merged_data = []
+
+    for file in input_files:
+        with open(file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            merged_data.extend(data)  # 각 JSON 파일의 데이터를 병합
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(merged_data, f, ensure_ascii=False, indent=4)
+
+    print(f"병합 완료: {output_file}")
+
+    # 병합된 파일 외의 JSON 파일 삭제
+    for file in input_files:
+        try:
+            os.remove(file)
+            print(f"삭제 완료: {file}")
+        except OSError as e:
+            print(f"파일 삭제 실패: {file}, {e}")
+
+# 생성된 JSON 파일을 병합합니다.
+merge_json_files(
+    'DB.json',       # 병합 결과를 저장할 파일 이름
+    'genres.json',   # 병합할 JSON 파일들
+    'movies.json',
+    'actors.json',
+    'directors.json',
+    'videos.json',
+    'keywords.json'
+)
