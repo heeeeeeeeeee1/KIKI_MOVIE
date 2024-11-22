@@ -35,7 +35,7 @@ class VideoListSerializer(serializers.ModelSerializer):
 
 # 댓글
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()  # 사용자 이름만 출력
+    user = serializers.CharField(source='user.username', read_only=True)  # 사용자 이름만 포함
 
     class Meta:
         model = Comment
@@ -44,17 +44,17 @@ class CommentSerializer(serializers.ModelSerializer):
 
 # 리뷰
 class ReviewSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()  # 사용자 이름만 출력
+    user = serializers.CharField(source='user.username', read_only=True)  # 사용자 이름만 포함
     comments = CommentSerializer(many=True, read_only=True)  # 연결된 댓글 포함
 
     class Meta:
         model = Review
         fields = ['id', 'content', 'score', 'created_at', 'user', 'comments']
 
-# ---------------------------------------------------------------
+# -------------------------------------------------------
 
-# 영화 단일 조회
-class MovieSerializer(serializers.ModelSerializer):
+# 전체 영화 조회
+class AllMovieSerializer(serializers.ModelSerializer):
     genres = GenreListSerializer(many=True, read_only=True)
     actors = ActorListSerializer(many=True, read_only=True)
     directors = DirectorListSerializer(many=True, read_only=True)
@@ -66,9 +66,34 @@ class MovieSerializer(serializers.ModelSerializer):
         model = Movie
         fields = '__all__'
         
-# - 영화 가져올 때 해당 영화 리뷰?
-# - 리뷰 가져올 때 해당 댓글도 같이?
 
+# 단일 영화 항목 조회
+class MovieSerializer(serializers.ModelSerializer):
+    genres = GenreListSerializer(many=True, read_only=True)
+    actors = ActorListSerializer(many=True, read_only=True)
+    directors = DirectorListSerializer(many=True, read_only=True)
+    keywords = KeywordListSerializer(many=True, read_only=True)
+    videos = VideoListSerializer(many=True, read_only=True)
+    
+    # 해당 영화의 리뷰도 함께 가져오기
+    class ReviewListSerializer(serializers.ModelSerializer):
+        class CommentListSerializer(serializers.ModelSerializer):
+            user = serializers.CharField(source='user.username', read_only=True)  # 사용자 이름만 포함
+        
+            class Meta:
+                model = Comment
+                fields = '__all__'
+        
+        comment_set = CommentListSerializer(many=True, read_only=True)
+        user = serializers.CharField(source='user.username', read_only=True)  # 사용자 이름만 포함
+        
+        class Meta:
+            model = Review
+            fields = '__all__'
+            
+    review_set = ReviewListSerializer(many=True, read_only=True)
+    review_count = serializers.IntegerField(source='review_set.count', read_only=True)
 
-
-# 전체 영화 조회 -> 메인페이지 사용?
+    class Meta:
+        model = Movie
+        fields = '__all__'
