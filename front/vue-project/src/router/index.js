@@ -34,7 +34,7 @@ const router = createRouter({
       component: ReviewDetailView,
     },
     {
-      path: "/movies/",
+      path: "/movies/:moviePk",
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
     },

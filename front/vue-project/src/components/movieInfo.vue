@@ -1,5 +1,5 @@
 <template>
-  <section class="movie-info">
+  <section class="movie-info" v-if="movie">
     <div>
       <div class="info-left">
         <img :src="movie.image" alt="영화 포스터" />
@@ -8,7 +8,7 @@
     <div class="info-right">
       <div class="info-real">
         <h2>{{ movie.title }}</h2>
-        <h3>{{ movie.originalTitle }}</h3>
+        <h3>{{ movie.original_title }}</h3>
         <p>감독: {{ movie.director }}</p>
         <p>배우: {{ movie.actors.join(", ") }}</p>
         <p>장르: {{ movie.genres.join(", ") }}</p>
@@ -17,6 +17,7 @@
       <MovieReaction />
     </div>
   </section>
+  <p v-else></p>
 </template>
 
 <script setup>
