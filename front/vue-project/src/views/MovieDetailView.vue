@@ -16,11 +16,14 @@ import { useMovieStore } from "@/stores/movieStore";
 const movieStore = useMovieStore();
 
 onMounted(() => {
-  const moviePk = 98; // 테스트용 영화 PK
+  const moviePk = 98;
   movieStore
-    .getMovie(moviePk) // 영화 정보 호출
+    .getMovie(moviePk)
     .then(() => {
       console.log("가져온 영화 데이터:", movieStore.movie);
+      // console.log 결과 : "/yemF0xxGU56Pf3JXxVr4C6kuKng.jpg"
+      console.log(movieStore.movie.poster_path)
+      // console.log(movieStore.movie.actors.map(actor => actor.name).join(", "));
     })
     .catch((error) => {
       console.error("API 호출 중 오류:", error);

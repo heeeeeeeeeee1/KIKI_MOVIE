@@ -37,3 +37,14 @@ section.movie-info {
   margin-bottom: 1rem;
   line-height: 1.5rem;
 }
+
+.more-flip-btn {
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.6rem;
+  background-color: inherit;
+  border: none;
+  color: white;
+}
+.more-flip-btn:hover {
+  background-color: var(--real-gray);
+}
