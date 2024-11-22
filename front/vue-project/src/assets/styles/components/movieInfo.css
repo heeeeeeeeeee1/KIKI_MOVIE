@@ -1,0 +1,39 @@
+section.movie-info {
+  width: 100%;
+  display: flex;
+  margin-top: 2rem;
+}
+
+.info-left {
+  width: 250px;
+  overflow: hidden;
+}
+
+.info-left img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.info-right {
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.info-right .info-real h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-right .info-real h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.info-right .info-real p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  line-height: 1.5rem;
+}
