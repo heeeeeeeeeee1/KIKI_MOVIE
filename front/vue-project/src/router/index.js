@@ -34,7 +34,7 @@ const router = createRouter({
       component: ReviewDetailView,
     },
     {
-      path: "/movies/:moviePk/detail/",
+      path: "/movies/",
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
     },
@@ -44,7 +44,7 @@ const router = createRouter({
     //   component: SingleReview, // 단일 리뷰 상세 페이지
     // },
   ],
-})
+});
 
 router.beforeEach((to, from) => {
   const store = useCounterStore();
