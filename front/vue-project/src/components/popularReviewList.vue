@@ -13,7 +13,7 @@
           :key="movie.id"
           class="movie-item"
         >
-          <router-link :to="`/movie/${movie.id}`" class="movie-link">
+          <router-link :to="`/movies/${movie.id}`" class="movie-link">
             <div class="movie-img-container">
               <img :src="movie.poster" :alt="movie.title" />
             </div>
@@ -26,7 +26,7 @@
           :key="`copy-${movie.id}`"
           class="movie-item"
         >
-          <router-link :to="`/movie/${movie.id}`" class="movie-link">
+          <router-link :to="`/movies/${movie.id}`" class="movie-link">
             <div class="movie-img-container">
               <img :src="movie.poster" :alt="movie.title" />
             </div>
