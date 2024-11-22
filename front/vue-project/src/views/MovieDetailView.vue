@@ -3,9 +3,12 @@
     <div class="movie-container">
       <!-- 데이터가 없을 경우 에러 메시지 표시 -->
       <div v-if="error" class="error-message">
-        <div class="ghost-circle">
-          <h3>해당 ID에 대한<br>영화 정보가 없습니다</h3>
+        <div class="siri-container">
+          <div class="morph-layer layer-1"></div>
+          <div class="morph-layer layer-2"></div>
+          <div class="morph-layer layer-3"></div>
         </div>
+        <h3>해당 ID에 대한 영화 데이터가 없습니다</h3>
       </div>
       <!-- 데이터가 있을 경우 영화 정보 및 리뷰 표시 -->
       <div v-else>
@@ -59,6 +62,7 @@ onMounted(() => {
 .error-message {
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 80vh;
@@ -66,55 +70,84 @@ onMounted(() => {
   text-align: center;
   margin: 2rem 0;
 }
-
-.ghost-circle {
-    position: relative;
-    width: 15rem;
-    height: 15rem;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
-    animation: ghost-float 3s ease-in-out infinite;
-    box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-.ghost-circle h3 {
+.error-message h3 {
   font-size: 1.6rem;
-  color: black;
+  color: white;
   font-weight: bold;
+  margin-top: 5rem;
 }
 
-.ghost-circle::before {
-  content: '';
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: -50%;
-  left: -50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
-  border-radius: 50%;
-  animation: ghost-shadow 4s ease-in-out infinite;
-}
+.siri-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.7));
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+  }
 
-@keyframes ghost-float {
-  0%, 100% {
-    transform: translateY(0);
+  .morph-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      rgba(255, 0, 0, 0.3),
+      rgba(0, 255, 0, 0.3),
+      rgba(0, 0, 255, 0.3),
+      rgba(255, 0, 255, 0.3),
+      rgba(255, 255, 0, 0.3),
+      rgba(255, 0, 0, 0.3)
+    );
+    animation: rotate-gradient 10s linear infinite, morph-shape 6s ease-in-out infinite alternate;
+    filter: blur(60px);
+    z-index: -1; /* Siri 원 뒤로 이동 */
   }
-  50% {
-    transform: translateY(-20px);
-  }
-}
 
-@keyframes ghost-shadow {
-  0% {
-    transform: rotate(0deg) scale(1);
+  /* 레이어별 크기 */
+  .layer-1 {
+    width: 300%;
+    height: 300%;
+    animation-duration: 8s;
+    filter: blur(80px); /* 가장 넓고 부드럽게 퍼지는 그림자 */
   }
-  50% {
-    transform: rotate(180deg) scale(1.1);
+
+  .layer-2 {
+    width: 250%;
+    height: 250%;
+    animation-duration: 6s;
+    filter: blur(60px);
   }
-  100% {
-    transform: rotate(360deg) scale(1);
+
+  .layer-3 {
+    width: 200%;
+    height: 200%;
+    animation-duration: 4s;
+    filter: blur(40px);
   }
-}
+
+  @keyframes rotate-gradient {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+
+  @keyframes morph-shape {
+    0% {
+      clip-path: circle(50%);
+    }
+    50% {
+      clip-path: ellipse(60% 50%);
+    }
+    100% {
+      clip-path: circle(50%);
+    }
+  }
 </style>
