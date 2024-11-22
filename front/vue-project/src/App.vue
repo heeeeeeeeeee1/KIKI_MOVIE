@@ -19,7 +19,9 @@ const logOut = function () {
   <header>
     <nav class="left-menu">
       <span>로고</span>
-      <a href="">홈</a>
+      <RouterLink :to="{ name: 'MainHomeView' }" class="home"
+          >홈</RouterLink
+        >
       <a href="">영화</a>
       <!-- <RouterLink :to="{ name: 'home' }">홈</RouterLink>
       <RouterLink :to="{ name: 'movie' }">영화</RouterLink> -->
@@ -32,6 +34,7 @@ const logOut = function () {
         <RouterLink :to="{ name: 'LogInView' }" class="users__login"
           >로그인</RouterLink
         >
+
       </div>
       <div v-else>
         <a href="">{{ store.username }}</a>
