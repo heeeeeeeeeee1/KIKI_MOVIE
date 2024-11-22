@@ -50,5 +50,38 @@ export const useMovieStore = defineStore('movieStore', () => {
       console.error('단일 리뷰를 가져오는 중 오류:', err.response?.data || err.message)
     })
   }
-  return { movie, movies, isLogin, reviews, API_URL, token, getMovie, getSingleReview }
+  
+  const createReview = function (moviePk, content, score) {
+    axios({
+      method: "post",
+      url: `${API_URL}/movies/${moviePk}/review/create/`,
+      data: { content, score },
+      headers: { Authorization: `Token ${token.value}` },
+    })
+      .then((res) => {
+        alert("리뷰 작성 성공!");
+        reviews.value.push(res.data); // 작성된 리뷰를 상태에 추가
+      })
+      .catch((err) => {
+        console.error("리뷰 작성 실패:", err.response?.data || err.message);
+      });
+  };
+
+  const createComment = function (moviePk, reviewPk, content) {
+    axios({
+      method: "post",
+      url: `${API_URL}/movies/${moviePk}/review/${reviewPk}/comment/create/`,
+      data: { content },
+      headers: { Authorization: `Token ${token.value}` },
+    })
+      .then((res) => {
+        alert("댓글 작성 성공!");
+      })
+      .catch((err) => {
+        console.error("댓글 작성 실패:", err.response?.data || err.message);
+      });
+  };
+
+  return { movie, movies, isLogin, reviews, API_URL, token, getMovie, getSingleReview, createReview, createComment }
 })
+
