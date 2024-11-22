@@ -10,6 +10,13 @@
 <script setup>
 import MovieInfo from "@/components/movieInfo.vue";
 import ReviewList from "@/components/movieReviewList.vue";
+import { useMovieStore } from "@/stores/movieStore";
+
+const movieStore = useMovieStore()
+
+movieStore.getMovie(response.data)
+console.log(movieStore.movie)
+
 </script>
 
 <style scoped>

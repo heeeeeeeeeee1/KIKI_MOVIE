@@ -15,7 +15,7 @@ export const useMovieStore = defineStore('movieStore', () => {
   const singleReview = ref(null) // 단일 리뷰 데이터
 
 
-  console.log("현재 저장된 토큰:", token.value) // 토큰 확인용 로그
+  console.log("현재 저장된 토큰:", token) // 토큰 확인용 로그
 
   // 단일 영화 정보 가져오기(로그인X)
   const getMovie = function (moviePk) {
@@ -26,6 +26,7 @@ export const useMovieStore = defineStore('movieStore', () => {
     .then((res) => {
       movie.value = res.data // 영화데이터 저장
       reviews.value = res.data.reviews // 리뷰 리스트 저장
+      console.log(movie.value)
     })
     .catch((err) => {
       console.error("영화 데이터를 가져오는 중 오류:", err.response?.data || err.message)
