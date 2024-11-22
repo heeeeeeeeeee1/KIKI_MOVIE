@@ -2,10 +2,12 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useCounterStore } from '@/stores/counter'
 
 export const useMovieStore = defineStore('movieStore', () => {
   const API_URL = 'http://127.0.0.1:8000'
-  const token = ref(localStorage.getItem('token')); // 인증 토큰
+  const counterStore = useCounterStore()
+  const token = counterStore.token // counter의 토큰 상태 참조
   
   const movie = ref({}) // 단일 영화 데이터 저장
   const movies = ref([]) // 영화 데이터 저장
@@ -15,14 +17,11 @@ export const useMovieStore = defineStore('movieStore', () => {
 
   console.log("현재 저장된 토큰:", token.value) // 토큰 확인용 로그
 
-  // 단일 영화 정보 가져오기
+  // 단일 영화 정보 가져오기(로그인X)
   const getMovie = function (moviePk) {
     axios({
       method: "get",
       url: `${API_URL}/movies/${moviePk}/detail/`,
-      headers: { 
-        Authorization: `Token ${token.value}`
-      },
     })  
     .then((res) => {
       movie.value = res.data // 영화데이터 저장
@@ -34,14 +33,11 @@ export const useMovieStore = defineStore('movieStore', () => {
   }
 
 
-  // 리뷰 정보 가져오기
+  // 리뷰 정보 가져오기(로그인X)
   const getSingleReview = function (moviePk, reviewPk) {
     axios({
       method: "get",
       url: `${API_URL}/movies/${moviePk}/review/${reviewPk}/`,
-      headers: { 
-        Authorization: `Token ${token.value}`,
-      },
     })  
     .then((res) => {
       singleReview.value = res.data
@@ -51,6 +47,7 @@ export const useMovieStore = defineStore('movieStore', () => {
     })
   }
   
+  // 리뷰 작성(로그인O)
   const createReview = function (moviePk, content, score) {
     axios({
       method: "post",
@@ -64,9 +61,10 @@ export const useMovieStore = defineStore('movieStore', () => {
       })
       .catch((err) => {
         console.error("리뷰 작성 실패:", err.response?.data || err.message);
-      });
-  };
+      })
+  }
 
+  // 댓글 생성(로그인O)
   const createComment = function (moviePk, reviewPk, content) {
     axios({
       method: "post",
@@ -82,6 +80,6 @@ export const useMovieStore = defineStore('movieStore', () => {
       });
   };
 
-  return { movie, movies, isLogin, reviews, API_URL, token, getMovie, getSingleReview, createReview, createComment }
+  return { movie, movies, reviews, API_URL, getMovie, getSingleReview, createReview, createComment }
 })
 
