@@ -48,6 +48,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import "@/assets/styles/components/noDataCircle.css";
+
 .movie-detail-view {
   width: 100%;
   display: flex;
@@ -59,95 +61,4 @@ onMounted(() => {
   background-color: inherit;
   color: white;
 }
-.error-message {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-  font-size: 1.5rem;
-  text-align: center;
-  margin: 2rem 0;
-}
-.error-message h3 {
-  font-size: 1.6rem;
-  color: white;
-  font-weight: bold;
-  margin-top: 5rem;
-}
-
-.siri-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.7));
-    overflow: hidden;
-    z-index: 1;
-    box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
-  }
-
-  .morph-layer {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background: conic-gradient(
-      from 0deg,
-      rgba(255, 0, 0, 0.3),
-      rgba(0, 255, 0, 0.3),
-      rgba(0, 0, 255, 0.3),
-      rgba(255, 0, 255, 0.3),
-      rgba(255, 255, 0, 0.3),
-      rgba(255, 0, 0, 0.3)
-    );
-    animation: rotate-gradient 10s linear infinite, morph-shape 6s ease-in-out infinite alternate;
-    filter: blur(60px);
-    z-index: -1; /* Siri 원 뒤로 이동 */
-  }
-
-  /* 레이어별 크기 */
-  .layer-1 {
-    width: 300%;
-    height: 300%;
-    animation-duration: 8s;
-    filter: blur(80px); /* 가장 넓고 부드럽게 퍼지는 그림자 */
-  }
-
-  .layer-2 {
-    width: 250%;
-    height: 250%;
-    animation-duration: 6s;
-    filter: blur(60px);
-  }
-
-  .layer-3 {
-    width: 200%;
-    height: 200%;
-    animation-duration: 4s;
-    filter: blur(40px);
-  }
-
-  @keyframes rotate-gradient {
-    0% {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
-  }
-
-  @keyframes morph-shape {
-    0% {
-      clip-path: circle(50%);
-    }
-    50% {
-      clip-path: ellipse(60% 50%);
-    }
-    100% {
-      clip-path: circle(50%);
-    }
-  }
 </style>
