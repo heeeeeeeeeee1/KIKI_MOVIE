@@ -39,6 +39,16 @@ const router = createRouter({
       component: MovieDetailView, // 영화 상세 페이지
     },
     // {
+    //   path: '/profile',
+    //   name: 'UserProfileView',
+    //   component: UserProfileView,
+    // },
+    // {
+    //   path: '/profile/edit',
+    //   name: 'UserEditView',
+    //   component: UserEditView,
+    // },
+    // {
     //   path: "/movies/:moviePk/review/:reviewPk",
     //   name: "SingleReview",
     //   component: SingleReview, // 단일 리뷰 상세 페이지
