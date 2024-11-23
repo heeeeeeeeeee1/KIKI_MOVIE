@@ -177,3 +177,17 @@ REST_FRAMEWORK = {
 }
 
 # 이메일 인증 관련
+ACCOUNT_AUTHENTICATION_METHOD = 'username'  # 'username', 'email', 'username_email' 중 선택
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_EMAIL_REQUIRED = False  # 이메일 필수 여부
+ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증 비활성화
+
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    "REGISTER_SERIALIZER": "accounts.serializers.CustomRegisterSerializer",
+}
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # 기본 백엔드
+    'allauth.account.auth_backends.AuthenticationBackend',  # Allauth 지원
+)

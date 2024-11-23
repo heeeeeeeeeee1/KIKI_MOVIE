@@ -1,16 +1,16 @@
 # accounts/urls.py
-from django.shortcuts import render
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import UserSerializer
 
-# Create your views here.
-from .serializers import *
-from movies.serializers import *
+class SignUpView(generics.CreateAPIView):
+    serializer_class = UserSerializer
 
-User = get_user_model()
+    perform_create = staticmethod(lambda serializer: serializer.save())
 
-# 개인 프로필 조회
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_info(request, username):
-    user = get_object_or_404(User, username=username)
-    serializer = UserInfoSerializers(user)
-    return Response(serializer.data)
+    create = staticmethod(lambda self, request, *args, **kwargs: (
+        self.get_serializer(data=request.data).is_valid(raise_exception=True),
+        self.perform_create(self.get_serializer(data=request.data)),
+        Response({"message": "회원가입 성공"}, status=status.HTTP_201_CREATED)
+    )[2])
