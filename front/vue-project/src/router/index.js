@@ -40,10 +40,19 @@ const router = createRouter({
       component: MovieDetailView, // 영화 상세 페이지
     },
     {
-<<<<<<< HEAD
       path: '/review/:reviewId',
       name: 'ReviewDetail',
       component: () => import('@/views/ReviewDetailView.vue'),
+    },
+    {
+      path: '/profile',
+      name: 'UserProfileView',
+      component: UserProfileView,
+    },
+    {
+      path: '/profile/edit',
+      name: 'UserEditView',
+      component: UserEditView,
     },
     // {
     //   path: '/profile',
@@ -60,17 +69,6 @@ const router = createRouter({
     //   name: "SingleReview",
     //   component: SingleReview, // 단일 리뷰 상세 페이지
     // },
-=======
-      path: '/profile',
-      name: 'UserProfileView',
-      component: UserProfileView,
-    },
-    {
-      path: '/profile/edit',
-      name: 'UserEditView',
-      component: UserEditView,
-    },
->>>>>>> origin/develop-front
   ],
 });
 
