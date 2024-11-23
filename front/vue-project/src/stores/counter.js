@@ -23,6 +23,7 @@ import { useRouter } from 'vue-router'
 export const useCounterStore = defineStore('counter', () => {
   const API_URL = 'http://127.0.0.1:8000'
   const token = ref(null)
+  const username = ref('');
   const isLogin = computed(() => {
     if (token.value === null) {
       return false
@@ -76,6 +77,64 @@ export const useCounterStore = defineStore('counter', () => {
       })
   }
   
+  // 사용자 이름 가져오기 (nav 컴포넌트에서 활용)
+  const fetchUserInfo = () => {
+    return axios({
+      method: 'get',
+      url: `${API_URL}/accounts/user/`,
+      headers: {
+        Authorization: `Token ${token.value}`,
+      },
+    })
+      .then((res) => {
+        // console.log('res: ', res)
+        username.value = res.data.username; // username 업데이트
+        // console.log('fetchUserInfo에서 username 업데이트:', username.value);
+        // return res.data; // Promise 반환
+      })
+      .catch((err) => {
+        console.log('사용자 정보 불러오기 실패:', err);
+        token.value = null; // 인증 실패 시 로그아웃 처리
+        throw err;
+      });
+  };
+  
+
+  // 사용자 프로필 정보 가져오기
+  const fetchUserProfile = () => {
+    axios({
+      method: 'get',
+      url: `${API_URL}/accounts/user/`,
+      headers: {
+        Authorization: `Token ${token.value}`,
+      },
+    })
+      .then((res) => {
+        profileData.value = res.data; // 사용자 프로필 정보 저장
+      })
+      .catch((err) => {
+        console.log('프로필 정보 불러오기 실패:', err);
+      });
+  };
+  
+  // 사용자 프로필 정보 업데이트
+  const updateUserInfo = (updatedData) => {
+    axios({
+      method: 'patch',
+      url: `${API_URL}/accounts/user/`,
+      headers: {
+        Authorization: `Token ${token.value}`,
+      },
+      data: updatedData,
+    })
+      .then((res) => {
+        console.log('사용자 정보 업데이트 성공:', res.data);
+      })
+      .catch((err) => {
+        console.log('사용자 정보 업데이트 실패:', err);
+      });
+  };
+
   // [추가기능] 로그아웃
   const logOut = function () {
     axios({
@@ -85,11 +144,12 @@ export const useCounterStore = defineStore('counter', () => {
       .then((res) => {
         console.log(res.data)
         token.value = null
-        router.push({ name: 'MainHomeView' })
+        username.value = '';
+        // router.push({ name: 'MainHomeView' })
       })
       .catch((err) => {
         console.log(err)
       })
   }
-  return { API_URL, signUp, logIn, token, isLogin, logOut }
+  return { API_URL, signUp, logIn, token, isLogin, fetchUserInfo, username, logOut }
 }, { persist: true })

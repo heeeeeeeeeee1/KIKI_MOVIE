@@ -34,10 +34,20 @@ const router = createRouter({
       component: ReviewDetailView,
     },
     {
-      path: "/movies/:moviePk/detail",
+      path: "/movies/",
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
     },
+    // {
+    //   path: '/profile',
+    //   name: 'UserProfileView',
+    //   component: UserProfileView,
+    // },
+    // {
+    //   path: '/profile/edit',
+    //   name: 'UserEditView',
+    //   component: UserEditView,
+    // },
     // {
     //   path: "/movies/:moviePk/review/:reviewPk",
     //   name: "SingleReview",
