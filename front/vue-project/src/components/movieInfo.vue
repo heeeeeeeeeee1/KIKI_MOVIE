@@ -34,7 +34,7 @@
         </p>
         <p v-else>시놉시스가 없습니다.</p>
       </div>
-      <MovieReaction />
+      <!-- <MovieReaction /> -->
     </div>
   </section>
   <p v-else>

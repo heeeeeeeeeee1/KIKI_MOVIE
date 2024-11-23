@@ -1,27 +1,31 @@
 <template>
-  <div class="movie-reaction">
-    <button @click="openReviewForm">리뷰 남기기</button>
-    <button :class="{ active: isWishlist }" @click="toggleWishlist">
-      보고 싶어요
-    </button>
-    <!-- <ReviewFormModal v-if="showReviewForm" @close="showReviewForm = false" /> -->
+  <div class="review-reaction-container">
+    <button @click="handleLike">좋아요 {{ likes }}</button>
+    <button @click="toggleCommentForm">댓글</button>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-// import ReviewFormModal from './ReviewFormModal.vue';
+import { defineProps, defineEmits } from "vue";
 
-const showReviewForm = ref(false);
-const isWishlist = ref(false);
+defineProps(["likes", "isLoggedIn"]); // isLoggedIn prop 추가
+const emit = defineEmits(["like", "toggleComment"]);
 
-function openReviewForm() {
-  showReviewForm.value = true;
-}
+const handleLike = () => {
+  if (!isLoggedIn) {
+    alert("로그인이 필요합니다."); // 로그인 안내 메시지
+    return;
+  }
+  emit("like");
+};
 
-function toggleWishlist() {
-  isWishlist.value = !isWishlist.value;
-}
+const toggleCommentForm = () => {
+  if (!isLoggedIn) {
+    alert("로그인이 필요합니다."); // 로그인 안내 메시지
+    return;
+  }
+  emit("toggleComment");
+};
 </script>
 
 <style scoped>

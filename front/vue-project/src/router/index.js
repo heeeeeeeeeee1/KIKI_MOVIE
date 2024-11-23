@@ -38,6 +38,11 @@ const router = createRouter({
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
     },
+    {
+      path: '/review/:reviewId',
+      name: 'ReviewDetail',
+      component: () => import('@/views/ReviewDetailView.vue'),
+    },
     // {
     //   path: '/profile',
     //   name: 'UserProfileView',
@@ -65,7 +70,7 @@ router.beforeEach((to, from) => {
 
   if ((to.name === "SignUpView" || to.name === "LogInView") && store.isLogin) {
     window.alert("이미 로그인 되어있습니다.");
-    return { name: "ArticleView" };
+    return false;
   }
 });
 
