@@ -50,5 +50,5 @@
   margin: 0.5rem 0;
 }
 .detail-right button:hover {
-  background-color: var(--blue-gray);
+  background-color: var(--blue-gray)
 }

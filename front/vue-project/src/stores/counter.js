@@ -23,7 +23,15 @@ import { useRouter } from 'vue-router'
 export const useCounterStore = defineStore('counter', () => {
   const API_URL = 'http://127.0.0.1:8000'
   const token = ref(null)
-  const username = ref('');
+  const username = ref('')
+  const profileData = ref({ // profileData 초기화
+    username: '',
+    email: '',
+    introduce: '',
+    gender: '',
+    birth_date: '',
+  })
+
   const isLogin = computed(() => {
     if (token.value === null) {
       return false
@@ -35,29 +43,68 @@ export const useCounterStore = defineStore('counter', () => {
 
   // 회원가입 요청 액션
   const signUp = function (payload) {
-    const { username, password1, password2 } = payload
-
+    const { username, password1, password2, email, introduce, gender, birth_date } = payload
+  
     axios({
       method: 'post',
       url: `${API_URL}/accounts/signup/`,
       data: {
-        username, password1, password2
+        username, 
+        password1, 
+        password2, 
+        email, 
+        introduce, 
+        gender, 
+        birth_date
       }
     })
-      .then((res) => {
-        // console.log(res)
-        // console.log('회원가입 성공')
-        const password = password1
-        logIn({ username, password })
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+    .then((res) => {
+      console.log('회원가입 성공');
+      const password = password1;
+      logIn({ username, password });
+    })
+    .catch((error) => {
+      if (error.response) {
+        // 서버가 응답한 오류
+        console.error('서버 응답 오류:', error.response.data);
+        console.error('상태 코드:', error.response.status);
+        alert(error.response.data.detail || '회원가입 중 오류가 발생했습니다.');
+      } else if (error.request) {
+        // 요청은 보냈지만 응답을 받지 못한 경우
+        console.error('서버 응답 없음:', error.request);
+        alert('서버와 통신할 수 없습니다.');
+      } else {
+        // 요청 설정 중 오류 발생
+        console.error('요청 설정 오류:', error.message);
+        alert('요청 중 오류가 발생했습니다.');
+      }
+    });
   }
+  // const signUp = function (payload) {
+  //   const { username, password1, password2, email, introduce, gender, birth_date } = payload
+
+  //   axios({
+  //     method: 'post',
+  //     url: `${API_URL}/accounts/signup/`,
+  //     data: {
+  //       username, password1, password2, email, introduce, gender, birth_date,
+  //     }
+  //   })
+  //     .then((res) => {
+  //       console.log("응답데이터", res.data)
+  //       // console.log('회원가입 성공')
+  //       const password = password1
+  //       logIn({ username, password })
+  //     })
+  //     .catch((err) => {
+  //       console.log(err)
+  //     })
+  // }
 
   // 로그인 요청 액션
   const logIn = function (payload) {
     const { username, password } = payload
+    console.log("로그인 요청 데이터:", payload); // 요청 데이터 디버깅
 
     axios({
       method: 'post',
@@ -70,11 +117,15 @@ export const useCounterStore = defineStore('counter', () => {
         token.value = res.data.key
         router.push({ name: 'MainHomeView' })
         // console.log(res.data)
-        // console.log('로그인 성공')
+        console.log('로그인 성공')
       })
-      .catch((err) => {
-        console.log(err)
-      })
+      .catch((error) => {
+        if (error.response) {
+          console.error("로그인 실패:", error.response.data); // 전체 응답 데이터 출력
+          alert(error.response.data.non_field_errors?.[0] || '로그인 중 오류가 발생했습니다.');
+        }
+      });
+  
   }
   
   // 사용자 이름 가져오기 (nav 컴포넌트에서 활용)
@@ -93,33 +144,55 @@ export const useCounterStore = defineStore('counter', () => {
         // return res.data; // Promise 반환
       })
       .catch((err) => {
-        console.log('사용자 정보 불러오기 실패:', err);
+        console.log('사용자 정보 불러오기 실패:', err)
         token.value = null; // 인증 실패 시 로그아웃 처리
-        throw err;
+        throw err
       });
   };
   
 
   // 사용자 프로필 정보 가져오기
-  const fetchUserProfile = () => {
-    axios({
-      method: 'get',
-      url: `${API_URL}/accounts/user/`,
-      headers: {
-        Authorization: `Token ${token.value}`,
-      },
+const fetchUserProfile = () => {
+  return axios({
+    method: 'get',
+    url: `${API_URL}/accounts/user/`,
+    headers: {
+      Authorization: `Token ${token.value}`,
+    },
+  })
+    .then((res) => {
+      if (res.data) {
+        profileData.value = {
+          username: res.data.username || '',
+          email: res.data.email || '',
+          introduce: res.data.introduce || '',
+          gender: res.data.gender || '',
+          ageGroup: res.data.ageGroup || '', // ageGroup이 응답 데이터에 있는지 확인
+        };
+        return profileData.value; // 프로필 데이터 반환
+      } else {
+        console.error('API 응답이 비어 있습니다.');
+        throw new Error('Empty response');
+      }
     })
-      .then((res) => {
-        profileData.value = res.data; // 사용자 프로필 정보 저장
-      })
-      .catch((err) => {
-        console.log('프로필 정보 불러오기 실패:', err);
-      });
-  };
+    .catch((err) => {
+      console.error('프로필 정보 불러오기 실패:', err);
+      profileData.value = {
+        username: '',
+        email: '',
+        introduce: '',
+        gender: '',
+        birth_date: '',
+        ageGroup: '',
+      };
+      throw err;
+    });
+};
+
   
   // 사용자 프로필 정보 업데이트
   const updateUserInfo = (updatedData) => {
-    axios({
+    return axios({
       method: 'patch',
       url: `${API_URL}/accounts/user/`,
       headers: {
@@ -127,14 +200,17 @@ export const useCounterStore = defineStore('counter', () => {
       },
       data: updatedData,
     })
-      .then((res) => {
-        console.log('사용자 정보 업데이트 성공:', res.data);
-      })
-      .catch((err) => {
-        console.log('사용자 정보 업데이트 실패:', err);
-      });
+    .then((res) => {
+      console.log('사용자 정보 업데이트 성공:', res.data);
+      profileData.value = { ...profileData.value, ...res.data };
+      return res.data
+    })
+    .catch((err) => {
+      console.log('사용자 정보 업데이트 실패:', err);
+    });
   };
 
+  
   // [추가기능] 로그아웃
   const logOut = function () {
     axios({
@@ -151,5 +227,5 @@ export const useCounterStore = defineStore('counter', () => {
         console.log(err)
       })
   }
-  return { API_URL, signUp, logIn, token, isLogin, fetchUserInfo, username, logOut }
+  return { API_URL, signUp, logIn, token, isLogin, fetchUserInfo, fetchUserProfile, updateUserInfo, profileData, username, logOut }
 }, { persist: true })

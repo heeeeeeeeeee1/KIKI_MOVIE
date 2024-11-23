@@ -10,6 +10,18 @@ export const useMovieStore = defineStore("movieStore", () => {
 
   const movie = ref({}); // 단일 영화 데이터 저장
   const movies = ref([]); // 영화 데이터 저장
+// 아래 28번째 줄까지 CONFLICT
+// movieStore.js
+// import axios from 'axios'
+// import { ref } from 'vue'
+// import { defineStore } from 'pinia'
+
+// export const useMovieStore = defineStore('movieStore', () => {
+//   const API_URL = 'http://127.0.0.1:8000'
+//   const token = ref(localStorage.getItem('token')); // 인증 토큰
+  
+//   const movie = ref({}) // 단일 영화 데이터 저장
+//   const movies = ref([]) // 영화 데이터 저장
   const reviews = ref([]); // 리뷰 리스트
   const singleReview = ref(null); // 단일 리뷰 데이터
 
@@ -20,6 +32,10 @@ export const useMovieStore = defineStore("movieStore", () => {
     return axios({
       method: "get",
       url: `${API_URL}/movies/${moviePk}/detail/`,
+      // CONFLICT
+      // headers: { 
+      //   Authorization: `Token ${token.value}`
+      // },
     })
       .then((res) => {
         movie.value = res.data;
@@ -88,7 +104,6 @@ export const useMovieStore = defineStore("movieStore", () => {
         console.error("좋아요 토글 실패:", err.response?.data || err.message);
       });
   };
-
 
   // 리뷰 정보 가져오기(로그인X)
   const getSingleReview = function (moviePk, reviewPk) {
@@ -159,3 +174,17 @@ export const useMovieStore = defineStore("movieStore", () => {
     toggleWishlist,
   };
 });
+//       headers: { 
+//         Authorization: `Token ${token.value}`,
+//       },
+//     })  
+//     .then((res) => {
+//       singleReview.value = res.data
+//     })
+//     .catch((err) => {
+//       console.error('단일 리뷰를 가져오는 중 오류:', err.response?.data || err.message)
+//     })
+//   }
+//   return { movie, movies, isLogin, reviews, API_URL, token, getMovie, getSingleReview }
+// })
+

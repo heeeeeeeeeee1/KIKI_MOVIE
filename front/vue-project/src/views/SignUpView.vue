@@ -85,7 +85,7 @@ const signUp = function () {
   };
   store.signUp(payload);
 
-  router.push({ name: "Login" })
+  router.push({ name: "LogInView" })
 
 };
 </script>

@@ -1,0 +1,88 @@
+.user-edit {
+    width: 700px;
+    margin: auto;
+    padding: 2rem;
+    color: white;
+    background-color: var(--dark-gray);
+    border-radius: 10px;
+    margin-top: 40px;
+  }
+.profile-image {
+    display: flex;
+    justify-content: center;
+}
+.profile-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* 원형 모양 */
+    object-fit: cover;
+    margin-bottom: 1rem;
+  }
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form__input {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.form__input > label {
+    margin-bottom: 0.5rem;
+}
+.form__input > input {
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+.btn-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+.right-btn {
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center;
+    gap: 1rem; 
+}
+.drop-btn {
+    color: white;
+    background-color: inherit;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    margin: 0.5rem 0;
+}
+.drop-btn:hover {
+background-color: var(--blue-gray)
+}
+.update-btn {
+    display: flex;
+    justify-content: flex-end;
+    color: white;
+    background-color: var(--light-blue);
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    margin: 0.5rem 0;
+}
+.update-btn:hover {
+    background-color: var(--blue-gray)
+}
+.cancel-btn {
+    color: white;
+    background-color: inherit;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    margin: 0.5rem 0;
+}
+.cancel-btn:hover {
+    background-color: var(--blue-gray)
+}
