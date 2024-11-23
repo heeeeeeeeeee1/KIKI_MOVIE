@@ -8,7 +8,7 @@ import ReviewDetailView from "@/views/ReviewDetailView.vue";
 import { useCounterStore } from "@/stores/counter";
 
 import MovieDetailView from "@/views/MovieDetailView.vue"; // 영화 상세 정보
-// import SingleReview from "@/components/SingleReview.vue"; // 단일 리뷰 정보
+import UserProfileView from "@/views/UserProfileView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,20 +38,15 @@ const router = createRouter({
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
     },
-    // {
-    //   path: '/profile',
-    //   name: 'UserProfileView',
-    //   component: UserProfileView,
-    // },
+    {
+      path: '/profile',
+      name: 'UserProfileView',
+      component: UserProfileView,
+    },
     // {
     //   path: '/profile/edit',
     //   name: 'UserEditView',
     //   component: UserEditView,
-    // },
-    // {
-    //   path: "/movies/:moviePk/review/:reviewPk",
-    //   name: "SingleReview",
-    //   component: SingleReview, // 단일 리뷰 상세 페이지
     // },
   ],
 });
