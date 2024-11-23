@@ -35,14 +35,14 @@ const router = createRouter({
       component: ReviewDetailView,
     },
     {
-      path: "/movies/",
+      path: "/movies/:moviePk",
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
     },
     {
-      path: '/review/:reviewId',
-      name: 'ReviewDetail',
-      component: () => import('@/views/ReviewDetailView.vue'),
+      path: "/movies/:moviePk/review/:reviewPk",
+      name: "ReviewDetailView",
+      component: ReviewDetailView,
     },
     {
       path: '/profile',
