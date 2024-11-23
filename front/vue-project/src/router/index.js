@@ -9,6 +9,7 @@ import { useCounterStore } from "@/stores/counter";
 
 import MovieDetailView from "@/views/MovieDetailView.vue"; // 영화 상세 정보
 import UserProfileView from "@/views/UserProfileView.vue";
+import UserEditView from "@/views/UserEditView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,11 +44,11 @@ const router = createRouter({
       name: 'UserProfileView',
       component: UserProfileView,
     },
-    // {
-    //   path: '/profile/edit',
-    //   name: 'UserEditView',
-    //   component: UserEditView,
-    // },
+    {
+      path: '/profile/edit',
+      name: 'UserEditView',
+      component: UserEditView,
+    },
   ],
 });
 
