@@ -60,11 +60,12 @@ onMounted(() => {
 <style scoped>
 header {
   width: 100%;
-  height: 2.5rem;
   display: flex;
   justify-content: center;
   position: fixed;
   z-index: 1;
+  background-color: black;
+  padding: 1rem 0;
 }
 
 .header-container {

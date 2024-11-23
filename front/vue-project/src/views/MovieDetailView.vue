@@ -13,10 +13,12 @@
       <!-- 데이터가 있을 경우 영화 정보 및 리뷰 표시 -->
       <div v-else>
         <MovieInfo :movie="movieStore.movie" />
-        <button :class="{'wishlist-checked': isWishlistChecked}" @click="toggleWishlist">
-        보고싶어요
-        </button>
-        <button @click="openModal">리뷰 작성하기</button>
+        <div class="movie-btns">
+          <button :class="{'wishlist-checked': isWishlistChecked}" @click="toggleWishlist">
+            보고싶어요
+          </button>
+          <button @click="openModal">리뷰 작성하기</button>
+        </div>
         <ReviewList :reviews="movieStore.reviews" />
       </div>
     </div>
@@ -226,7 +228,26 @@ const submitReview = () => {
   background-color: inherit;
   color: white;
 }
+.movie-btns {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+.movie-btns button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.4rem;
+  background-color: var(--light-gray);
+}
 
+.movie-btns button:first-child {
+  margin-right: 1rem;
+}
+
+.wishlist-checked {
+  background-color: var(--light-blue);
+  color: white;
+}
 .modal {
   position: fixed;
   top: 0;
@@ -273,11 +294,6 @@ textarea {
   width: 100%;
   height: 100px;
   margin-bottom: 10px;
-}
-
-.wishlist-checked {
-  background-color: green;
-  color: white;
 }
 
 .rating-input {
