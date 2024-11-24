@@ -11,6 +11,8 @@ import MovieDetailView from "@/views/MovieDetailView.vue"; // 영화 상세 정�
 import UserProfileView from "@/views/UserProfileView.vue";
 import UserEditView from "@/views/UserEditView.vue";
 import RouletteView from "@/views/RouletteView.vue";
+import KikiMovieView from '@/views/KikiMovieView.vue'; // 추천 메인 페이지
+import PredictActor from '@/components/PredictActor.vue'; // 닮은 배우 추천 컴포넌트
 
 
 const router = createRouter({
@@ -56,11 +58,26 @@ const router = createRouter({
       name: 'UserEditView',
       component: UserEditView,
     },
+    {
+      path: '/kikimovie', // 기본 경로
+      name: 'KikiMovieView',
+      component: KikiMovieView, // 메인 추천 페이지
+    },
+    {
+      path: '/kikimovie/predict', // 닮은꼴 추천 경로
+      name: 'PredictActor',
+      component: PredictActor,
+    },
+    {
+      path: '/roulette',
+      name: 'RouletteView',
+      component: RouletteView,
+    },
     // {
-    //   path: '/profile',
-    //   name: 'UserProfileView',
-    //   component: UserProfileView,
-    // },
+      //   path: '/profile',
+      //   name: 'UserProfileView',
+      //   component: UserProfileView,
+      // },
     // {
     //   path: '/profile/edit',
     //   name: 'UserEditView',
@@ -71,11 +88,6 @@ const router = createRouter({
     //   name: "SingleReview",
     //   component: SingleReview, // 단일 리뷰 상세 페이지
     // },
-    {
-      path: '/roulette',
-      name: 'RouletteView',
-      component: RouletteView,
-    },
 
   ],
 });

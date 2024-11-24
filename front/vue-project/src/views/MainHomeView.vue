@@ -1,3 +1,4 @@
+<!--ㅋㅋ알고리즘 따로 페이지 만들기 전에는 메인에 연결해놨음 -->
 <template>
   <main class="main-home-container">
     <div class="main-home">

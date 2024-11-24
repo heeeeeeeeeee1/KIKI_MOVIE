@@ -1,4 +1,5 @@
 <!-- MovieRecommendationModal -->
+<!-- 배우 선택 정보 받으면 영화 추천하려고 했던 거 -->
 <template>
   <div class="modal-overlay" v-if="isVisible">
     <div class="modal-content">
