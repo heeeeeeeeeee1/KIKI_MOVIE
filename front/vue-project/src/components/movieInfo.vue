@@ -9,6 +9,7 @@
       <div class="info-real">
         <h2>{{ movie.title }}</h2>
         <h3>{{ movie.original_title }}</h3>
+        <hr>
         <p v-if="movie.directors && movie.directors.length > 0">
           감독: {{ movie.directors.slice(0, 5).map(director => director.name).join(", ") }}
           <span v-if="movie.directors.length > 5">
@@ -34,7 +35,7 @@
         </p>
         <p v-else>시놉시스가 없습니다.</p>
       </div>
-      <MovieReaction />
+      <!-- <MovieReaction /> -->
     </div>
   </section>
   <p v-else>

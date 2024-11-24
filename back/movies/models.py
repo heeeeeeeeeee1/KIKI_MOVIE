@@ -1,5 +1,6 @@
 from django.db import models
-from django.conf import settings 
+from django.conf import settings
+from django.utils.timezone import now
 
 # 영화 정보 DB - 영화와 N:M 관계
 class Actor(models.Model): # 배우 DB
@@ -57,27 +58,42 @@ class Movie(models.Model):  # 영화 DB
     keywords = models.ManyToManyField(Keyword, blank=True)
 
 
-class Review(models.Model): # 리뷰
+class Review(models.Model):
     content = models.TextField()
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True) 
+    updated_at = models.DateTimeField(auto_now=True)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_review')
+    like_count = models.IntegerField(default=0)
 
+# 리뷰 좋아요
+class ReviewLike(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-class Comment(models.Model): # 리뷰의 댓글 
-    review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('review', 'user')
+
+class Comment(models.Model):
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='comments'
+    )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_comment')
 
 
-class Wishlist(models.Model):   # 보고싶은 영화
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_wishlist')
 
+class Wishlist(models.Model):   # 보고싶은 영화
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist')
+    created_at = models.DateTimeField(default=now)
+
+    class Meta:
+        unique_together = ('movie', 'user')
 
 class View(models.Model):   # 본 영화
     view_count = models.IntegerField(default=0)

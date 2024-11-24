@@ -17,7 +17,9 @@
           </RouterLink>
         </div>
         <div v-else>
-          <a href="" class="nav-text">{{ store.username }}</a>
+          <RouterLink :to="{ name: 'UserProfileView' }" class="nav-text users__login">
+            {{ store.username }}
+          </RouterLink>
           <form @submit.prevent="logOut">
             <input type="submit" value="로그아웃" class="nav-text users__logout"/>
           </form>
@@ -58,11 +60,12 @@ onMounted(() => {
 <style scoped>
 header {
   width: 100%;
-  height: 2.5rem;
   display: flex;
   justify-content: center;
   position: fixed;
   z-index: 1;
+  background-color: black;
+  padding: 1rem 0;
 }
 
 .header-container {

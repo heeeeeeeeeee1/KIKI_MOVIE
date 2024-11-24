@@ -37,9 +37,14 @@ const router = createRouter({
       component: ReviewDetailView,
     },
     {
-      path: "/movies/",
+      path: "/movies/:moviePk",
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
+    },
+    {
+      path: "/movies/:moviePk/review/:reviewPk",
+      name: "ReviewDetailView",
+      component: ReviewDetailView,
     },
     {
       path: '/profile',
@@ -51,6 +56,21 @@ const router = createRouter({
       name: 'UserEditView',
       component: UserEditView,
     },
+    // {
+    //   path: '/profile',
+    //   name: 'UserProfileView',
+    //   component: UserProfileView,
+    // },
+    // {
+    //   path: '/profile/edit',
+    //   name: 'UserEditView',
+    //   component: UserEditView,
+    // },
+    // {
+    //   path: "/movies/:moviePk/review/:reviewPk",
+    //   name: "SingleReview",
+    //   component: SingleReview, // 단일 리뷰 상세 페이지
+    // },
     {
       path: '/roulette',
       name: 'RouletteView',
@@ -69,7 +89,7 @@ router.beforeEach((to, from) => {
 
   if ((to.name === "SignUpView" || to.name === "LogInView") && store.isLogin) {
     window.alert("이미 로그인 되어있습니다.");
-    return { name: "ArticleView" };
+    return false;
   }
 });
 
