@@ -1,4 +1,3 @@
-# accounts/urls.py
 # from rest_framework import generics
 # from rest_framework.response import Response
 # from rest_framework import status
@@ -6,9 +5,11 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from accounts.models import User
 from rest_framework import status
+from accounts.models import User
+from movies.models import Review, Wishlist
 from accounts.serializers import CustomUserDetailsSerializer
+from movies.serializers import ReviewSerializer, MovieSerializer
 
 @api_view(['GET', 'PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
@@ -16,8 +17,23 @@ def custom_user_details(request):
     user = request.user
 
     if request.method == 'GET':
-        serializer = CustomUserDetailsSerializer(user)
-        return Response(serializer.data)
+        # 사용자 기본 정보
+        user_serializer = CustomUserDetailsSerializer(user)
+        user_data = user_serializer.data
+        # 사용자가 작성한 리뷰 (봤어요 목록)
+        reviews = Review.objects.filter(user=user).select_related('movie')
+        review_serializer = ReviewSerializer(reviews, many=True)
+        # 사용자가 보고싶어요한 영화
+        wishlist = Wishlist.objects.filter(user=user).select_related('movie')
+        wishlist_movies = [wishlist_item.movie for wishlist_item in wishlist]
+        wishlist_serializer = MovieSerializer(wishlist_movies, many=True)
+        # 데이터 통합 반환
+        data = {
+            'user_info': user_data,
+            'watched_reviews': review_serializer.data,
+            'wishlist': wishlist_serializer.data,
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
     elif request.method in ['PUT', 'PATCH']:
         data = request.data.copy()

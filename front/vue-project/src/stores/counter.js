@@ -4,27 +4,13 @@ import { defineStore } from "pinia";
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
-
-// export const useCounterStore = defineStore("counter", {
-//   state: () => ({
-//     count: 0,
-//   }),
-//   actions: {
-//     increment() {
-//       this.count++;
-//     },
-//     signUp(payload) {
-//       console.log("Sign up payload from store:", payload);
-//       // 회원가입 로직 추가
-//     },
-//   },
-// });
-
 export const useCounterStore = defineStore('counter', () => {
   const API_URL = 'http://127.0.0.1:8000'
   const token = ref(null)
   const username = ref('')
-  const profileData = ref({ // profileData 초기화
+
+  // 사용자 데이터 저장
+  const profileData = ref({
     username: '',
     email: '',
     introduce: '',
@@ -32,13 +18,11 @@ export const useCounterStore = defineStore('counter', () => {
     birth_date: '',
   })
 
-  const isLogin = computed(() => {
-    if (token.value === null) {
-      return false
-    } else {
-      return true
-    }
-  })
+  // 작성한 리뷰와 보고싶어요 영화
+  const watchedReviews = ref([]); // 사용자가 작성한 리뷰 목록
+  const wishlistMovies = ref([]); // 사용자가 보고싶어요를 누른 영화 목록
+
+  const isLogin = computed(() => token.value !== null);
   const router = useRouter()
 
   // 회원가입 요청 액션
@@ -80,26 +64,6 @@ export const useCounterStore = defineStore('counter', () => {
       }
     });
   }
-  // const signUp = function (payload) {
-  //   const { username, password1, password2, email, introduce, gender, birth_date } = payload
-
-  //   axios({
-  //     method: 'post',
-  //     url: `${API_URL}/accounts/signup/`,
-  //     data: {
-  //       username, password1, password2, email, introduce, gender, birth_date,
-  //     }
-  //   })
-  //     .then((res) => {
-  //       console.log("응답데이터", res.data)
-  //       // console.log('회원가입 성공')
-  //       const password = password1
-  //       logIn({ username, password })
-  //     })
-  //     .catch((err) => {
-  //       console.log(err)
-  //     })
-  // }
 
   // 로그인 요청 액션
   const logIn = function (payload) {
@@ -151,45 +115,53 @@ export const useCounterStore = defineStore('counter', () => {
   };
   
 
-  // 사용자 프로필 정보 가져오기
-const fetchUserProfile = () => {
-  return axios({
-    method: 'get',
-    url: `${API_URL}/accounts/myprofile/`,
-    headers: {
-      Authorization: `Token ${token.value}`,
-    },
-  })
-    .then((res) => {
-      if (res.data) {
-        profileData.value = {
-          username: res.data.username || '',
-          email: res.data.email || '',
-          gender: res.data.gender || '',
-          birth_date: res.data.birth_date || '',
-          introduce: res.data.introduce || '',
-        };
-        console.log('프로필 데이터: ', profileData.value)
-        return profileData.value; // 프로필 데이터 반환
-      } else {
-        console.error('API 응답이 비어 있습니다.');
-        throw new Error('Empty response');
-      }
-    })
-    .catch((err) => {
-      console.error('프로필 정보 불러오기 실패:', err);
-      profileData.value = {
-        username: '',
-        email: '',
-        gender: '',
-        birth_date: '',
-        introduce: '',
-      };
-      throw err;
+// 사용자 프로필 정보 가져오기
+const fetchUserProfile = async () => {
+  try {
+    const response = await axios({
+      method: 'get',
+      url: `${API_URL}/accounts/myprofile/`,
+      headers: { Authorization: `Token ${token.value}` },
     });
+
+    if (response.data) {
+      // 프로필 데이터 업데이트
+      profileData.value = {
+        username: response.data.user_info.username || '',
+        email: response.data.user_info.email || '',
+        gender: response.data.user_info.gender || '',
+        birth_date: response.data.user_info.birth_date || '',
+        introduce: response.data.user_info.introduce || '자기 소개가 없습니다.',
+      };
+
+      // 리뷰와 위시리스트 데이터 업데이트
+      watchedReviews.value = response.data.watched_reviews || [];
+      wishlistMovies.value = response.data.wishlist || [];
+
+      return {
+        profileData: profileData.value,
+        watchedReviews: watchedReviews.value,
+        wishlistMovies: wishlistMovies.value
+      };
+    }
+    throw new Error('데이터가 없습니다.');
+  } catch (err) {
+    console.error('프로필 정보 불러오기 실패:', err);
+    // 기본값으로 초기화
+    profileData.value = {
+      username: '',
+      email: '',
+      gender: '',
+      birth_date: '',
+      introduce: '자기 소개가 없습니다.',
+    };
+    watchedReviews.value = [];
+    wishlistMovies.value = [];
+    throw err;
+  }
 };
 
-  
+
   // 사용자 프로필 정보 수정
   const updateUserInfo = (updatedData) => {
     return axios({
@@ -211,8 +183,7 @@ const fetchUserProfile = () => {
     });
   };
 
-  
-  // [추가기능] 로그아웃
+  // 로그아웃
   const logOut = function () {
     axios({
       method: 'post',
@@ -229,5 +200,20 @@ const fetchUserProfile = () => {
       })
   }
 
-  return { API_URL, signUp, logIn, token, isLogin, fetchUserInfo, fetchUserProfile, updateUserInfo, profileData, username, logOut }
+  return {
+    API_URL,
+    token,
+    username,
+    isLogin,
+    profileData,
+    signUp,
+    logIn,
+    logOut,
+    fetchUserInfo,
+    profileData,
+    watchedReviews,
+    wishlistMovies,
+    fetchUserProfile,
+    updateUserInfo,
+  }
 }, { persist: true })
