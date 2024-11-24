@@ -15,9 +15,12 @@ class CustomRegisterSerializer(RegisterSerializer):
         return user
     
 class CustomUserDetailsSerializer(UserDetailsSerializer):
-    gender = serializers.CharField(read_only=True)
-    birth_date = serializers.DateField(read_only=True)
-    introduce = serializers.CharField(read_only=True)
+    # username 변경 못하게 막음
+    username = serializers.CharField(read_only=True)
+    # 추가 입력한 필드들
+    gender = serializers.CharField()
+    birth_date = serializers.DateField()
+    introduce = serializers.CharField()
 
     class Meta(UserDetailsSerializer.Meta):
         model = User

@@ -190,11 +190,11 @@ const fetchUserProfile = () => {
 };
 
   
-  // 사용자 프로필 정보 업데이트
+  // 사용자 프로필 정보 수정
   const updateUserInfo = (updatedData) => {
     return axios({
       method: 'patch',
-      url: `${API_URL}/accounts/user/`,
+      url: `${API_URL}/accounts/myprofile/`,
       headers: {
         Authorization: `Token ${token.value}`,
       },
@@ -207,6 +207,7 @@ const fetchUserProfile = () => {
     })
     .catch((err) => {
       console.log('사용자 정보 업데이트 실패:', err);
+      throw err;
     });
   };
 
@@ -227,5 +228,6 @@ const fetchUserProfile = () => {
         console.log(err)
       })
   }
+
   return { API_URL, signUp, logIn, token, isLogin, fetchUserInfo, fetchUserProfile, updateUserInfo, profileData, username, logOut }
 }, { persist: true })
