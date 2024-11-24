@@ -1,7 +1,7 @@
 <!-- UserEditView -->
 <template>
   <main class="user-edit">
-    <div class = "profile-image">
+    <div class="profile-image">
       <img src="@/assets/basic-profile.png" alt="profile-pic" />
     </div>
     
@@ -12,19 +12,13 @@
       </div>
       <div class="form__input">
         <label for="nickname">닉네임</label>
-        <input id="nickname" v-model="formData.nickname" />
+        <!-- 읽기 전용으로 username 변경 불가 -->
+        <input id="nickname" v-model="formData.nickname" disabled />
+        <small style="color: gray;">닉네임은 변경할 수 없습니다.</small>
       </div>
       <div class="form__input">
         <label for="introduce">소개</label>
         <input id="introduce" v-model="formData.introduce" />
-      </div>
-      <div class="form__input">
-        <label for="password1">비밀번호</label>
-        <input id="password1" v-model="formData.password1" type="password"/>
-      </div>
-      <div class="form__input">
-        <label for="password2">비밀번호 확인</label>
-        <input id="password2" v-model="formData.password2" type="password"/>
       </div>
       <div class="form__input">
         <label for="gender">성별</label>
@@ -41,7 +35,7 @@
 
     <div class="btn-group">
       <div class="left-btn">
-        <!-- 회원탈퇴시 알람 -->
+        <!-- 회원탈퇴 버튼 : 현재 해당 기능 동작 안함, 수정 필요-->
         <button class="drop-btn" @click.prevent="dropAccount">회원탈퇴</button>
       </div>
       <div class="right-btn">
@@ -60,21 +54,31 @@ import { useCounterStore } from '@/stores/counter';
 const router = useRouter();
 const store = useCounterStore();
 
-// 사용자 입력 폼 데이터
 const formData = ref({
   nickname: '',
   email: '',
   introduce: '',
-  password1: '',
-  password2: '',
   gender: '',
   birth_date: '',
-})
+});
 
-// 초기 데이터 저장(회원 정보 수정 중 취소 시 복구용)
 const initialFormData = ref({});
 
-// 마운트 시 사용자 프로필 정보 가져오기
+const getChangedFields = (original, updated) => {
+  const changedFields = {};
+  for (const key in updated) {
+    if (updated[key] !== original[key]) {
+      changedFields[key] = updated[key];
+    }
+  }
+  return changedFields;
+};
+
+const genderMap = {
+  M: 'male',
+  W: 'female',
+};
+
 onMounted(() => {
   store.fetchUserProfile()
     .then((data) => {
@@ -82,9 +86,7 @@ onMounted(() => {
         email: data.email || '',
         nickname: data.username || '',
         introduce: data.introduce || '',
-        password1: '',
-        password2: '',
-        gender: data.gender || '',
+        gender: genderMap[data.gender] || '',
         birth_date: data.birth_date || '',
       };
       initialFormData.value = { ...formData.value };
@@ -94,34 +96,41 @@ onMounted(() => {
     });
 });
 
+const reverseGenderMap = {
+  male: 'M',
+  female: 'W',
+};
 
-// 회원 탈퇴
-const dropAccount = () => {
-  if (confirm("정말로 계정을 삭제하시겠습니까?")) {
-    store.logOut(); // Store에서 로그아웃 처리
-    alert("계정이 삭제되었습니다.")
-    router.push("/") // 프로필 페이지로 이동
-  }
-}
-
-// 사용자 정보 업데이트
 const updateProfile = () => {
-  store.updateUserInfo(formData.value)
-    .then(() => {
+  const updatedData = getChangedFields(initialFormData.value, formData.value);
+
+  if (Object.keys(updatedData).length === 0) {
+    alert('변경된 내용이 없습니다.');
+    return;
+  }
+
+  store.updateUserInfo(updatedData)
+    .then((res) => {
       alert('정보가 성공적으로 업데이트되었습니다.');
-      router.push('/profile'); // 프로필 페이지로 이동
+      router.push('/profile');
     })
     .catch((err) => {
-      alert('정보 업데이트에 실패했습니다.');
-      console.error(err);
+      console.error('사용자 정보 업데이트 실패:', err.response?.data || err);
+      alert(`업데이트 실패: ${JSON.stringify(err.response?.data)}`);
     });
 };
 
-// 취소 버튼
 const cancelEdit = () => {
-  formData.value = { ...initialFormData.value } // 초기 상태 복원
+  formData.value = { ...initialFormData.value };
 };
 
+const dropAccount = () => {
+  if (confirm('정말로 계정을 삭제하시겠습니까?')) {
+    store.logOut();
+    alert('계정이 삭제되었습니다.');
+    router.push('/');
+  }
+};
 </script>
 
 <style scoped>

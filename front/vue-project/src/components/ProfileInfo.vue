@@ -6,8 +6,12 @@
     </div>
     <div class="profile-text">
       <h3 class="nickname">{{ profileData.username }}</h3>
-      <p>{{ profileData.ageGroup || '연령대' }} {{ profileData.gender || '성별'}} | {{ profileData.email || '정보없음'}}</p>
-      <p>{{ profileData.introduce || '소개' }}</p>
+      <p>
+        {{ profileData.ageGroup || '연령대' }}
+        {{ profileData.gender || '성별'}} |
+        {{ profileData.email || '이메일 정보없음'}}
+      </p>
+      <p>{{ profileData.introduce || '자기 소개가 없습니다.' }}</p>
     </div>
     <button class="edit-btn" @click="updateUserInfo">프로필 수정</button>
   </div>
@@ -25,8 +29,46 @@ const router = useRouter()
 const store = useCounterStore()
 
 // Pinia의 profileData를 연동
-const profileData = computed(() => store.profileData)
+const rawProfileData = computed(() => store.profileData)
 
+const profileData = computed(() => {
+  if (!rawProfileData.value) return null;
+
+  const { birth_date, gender, introduce, ...rest } = rawProfileData.value;
+
+  // 성별 변환
+  const genderMap = {
+    M: '남성',
+    W: '여성',
+  };
+
+  // 연령대 계산
+  let ageGroup = null;
+  if (birth_date) {
+    const birthYear = new Date(birth_date).getFullYear();
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - birthYear;
+
+    if (age === 0) {
+      const birthMonth = new Date(birth_date).getMonth();
+      const currentMonth = new Date().getMonth();
+      if (currentMonth === birthMonth) {
+        ageGroup = '응애 애기'; // 올해 태어난 경우
+      } else {
+        ageGroup = '잼민이'; // 0살로 계산된 경우
+      }
+    } else {
+      ageGroup = `${Math.floor(age / 10) * 10}대`;
+    }
+  }
+
+  return {
+    ...rest,
+    gender: genderMap[gender] || '성별',
+    ageGroup: ageGroup || '연령대',
+    introduce: introduce || '자기소개가 없습니다',
+  };
+});
 
 // 프로필 수정 페이지로 이동 함수
 const updateUserInfo = () => {
