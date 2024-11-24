@@ -35,7 +35,7 @@
 
     <div class="btn-group">
       <div class="left-btn">
-        <!-- 회원탈퇴 버튼 -->
+        <!-- 회원탈퇴 버튼 : 현재 해당 기능 동작 안함, 수정 필요-->
         <button class="drop-btn" @click.prevent="dropAccount">회원탈퇴</button>
       </div>
       <div class="right-btn">
