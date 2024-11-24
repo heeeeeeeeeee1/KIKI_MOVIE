@@ -7,7 +7,7 @@ class CustomUserAdmin(UserAdmin):
     # 사용자 정보 수정 화면에 추가 필드 표시
     fieldsets = (
         ("Infos", {
-            "fields": ("email", "password", "username", "gender", "birth_date"),  # 추가할 필드
+            "fields": ("email", "password", "username", "gender", "birth_date", "introduce"),  # 추가할 필드
         }),
         ("Permissions", {
             "fields": (
@@ -28,7 +28,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
-            "fields": ("email", "username", "password1", "password2", "gender", "birth_date"),  # 추가 필드
+            "fields": ("email", "username", "password1", "password2", "gender", "birth_date", "introduce"),  # 추가 필드
         }),
     )
 

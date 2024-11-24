@@ -1,4 +1,4 @@
-<-- UserProfileView.vue -->
+<!-- UserProfileView.vue -->
 <template>
   <div class="user-profile">
     <ProfileInfo />

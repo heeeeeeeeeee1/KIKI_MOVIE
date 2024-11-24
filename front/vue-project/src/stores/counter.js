@@ -155,7 +155,7 @@ export const useCounterStore = defineStore('counter', () => {
 const fetchUserProfile = () => {
   return axios({
     method: 'get',
-    url: `${API_URL}/accounts/user/`,
+    url: `${API_URL}/accounts/myprofile/`,
     headers: {
       Authorization: `Token ${token.value}`,
     },
@@ -165,10 +165,11 @@ const fetchUserProfile = () => {
         profileData.value = {
           username: res.data.username || '',
           email: res.data.email || '',
-          introduce: res.data.introduce || '',
           gender: res.data.gender || '',
-          ageGroup: res.data.ageGroup || '', // ageGroup이 응답 데이터에 있는지 확인
+          birth_date: res.data.birth_date || '',
+          introduce: res.data.introduce || '',
         };
+        console.log('프로필 데이터: ', profileData.value)
         return profileData.value; // 프로필 데이터 반환
       } else {
         console.error('API 응답이 비어 있습니다.');
@@ -180,10 +181,9 @@ const fetchUserProfile = () => {
       profileData.value = {
         username: '',
         email: '',
-        introduce: '',
         gender: '',
         birth_date: '',
-        ageGroup: '',
+        introduce: '',
       };
       throw err;
     });
