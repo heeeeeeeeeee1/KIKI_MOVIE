@@ -75,11 +75,16 @@ const store = useCounterStore();
 const router = useRouter();
 
 const signUp = function () {
+  if (!gender.value) {
+    alert("성별을 선택해 주세요."); // 사용자에게 경고 메시지 표시
+    return; // 폼 제출 중단
+  }
+
   const payload = {
     username: username.value,
     password1: password1.value,
     password2: password2.value,
-    gender: gender.value,
+    gender: gender.value === 'male' ? 'M' : 'W',
     email: email.value,
     birth_date: birth_date.value,
   };
