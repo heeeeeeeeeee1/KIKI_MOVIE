@@ -8,7 +8,7 @@
           <div class="morph-layer layer-2"></div>
           <div class="morph-layer layer-3"></div>
         </div>
-        <h3>해당 ID에 대한 영화 데이터가 없습니다</h3>
+        <h3>영화 정보가 없어요<br>다른 영화를 찾아보시는 건 어떠신가요?</h3>
       </div>
       <!-- 데이터가 있을 경우 영화 정보 및 리뷰 표시 -->
       <div v-else>
@@ -17,7 +17,7 @@
           <button :class="{'wishlist-checked': isWishlistChecked}" @click="toggleWishlist">
             보고싶어요
           </button>
-          <button @click="openModal">리뷰 작성하기</button>
+          <button @click="openModal">리뷰 작성</button>
         </div>
         <ReviewList :reviews="movieStore.reviews" />
       </div>
@@ -29,17 +29,12 @@
       class="modal"
       :class="{'shake': isShaking}"
     >
-      <div class="modal-content">
-        <h3> {{ movieStore.movie.title }}은 {{ counterStore.username }}님에게 어떤 영화인가요?</h3>
+      <div class="modal-content--create-review">
+        <h3> {{ counterStore.username }}님<br> "{{ movieStore.movie.title }}" 어땠나요?</h3>
         <form @submit.prevent="submitReview">
-          <!-- 리뷰 내용 -->
-          <textarea
-            v-model="reviewContent"
-            :placeholder="userReview ? userReview.content : '리뷰를 작성하세요'"
-          ></textarea>
           <!-- 별점 조정 -->
           <div class="rating-input">
-            <button type="button" @click="decreaseScore">-</button>
+            <button class="rating-btns" type="button" @click="decreaseScore">-</button>
             <div class="stars">
               <span
                 v-for="n in 5"
@@ -48,20 +43,25 @@
                 class="star"
               >★</span>
             </div>
-            <button type="button" @click="increaseScore">+</button>
+            <button class="rating-btns" type="button" @click="increaseScore">+</button>
           </div>
-          <p class="current-score">현재 별점: {{ reviewScore }}</p>
-          <button type="submit">리뷰 등록</button>
-          <button type="button" @click="closeModal">취소</button>
+          <!-- <p class="current-score">현재 별점: {{ reviewScore }}</p> -->
+          <!-- 리뷰 내용 -->
+          <textarea
+            v-model="reviewContent"
+            :placeholder="userReview ? userReview.content : '리뷰를 작성하세요 (100자 이내)'"
+          ></textarea>
+          <button class="submit-btns" type="submit">리뷰 등록</button>
+          <button class="submit-btns" type="button" @click="closeModal">취소</button>
         </form>
       </div>
     </div>
 
     <div v-if="isConfirmModalOpen" class="modal">
-      <div class="modal-content">
+      <div class="modal-content--gotoreview">
         <h3>영화를 보셨나요? 리뷰를 남겨보시겠어요?</h3>
-        <button @click="confirmOpenReviewModal">확인</button>
-        <button @click="closeConfirmModal">취소</button>
+        <button class="submit-btns" @click="confirmOpenReviewModal">리뷰 남기기</button>
+        <button class="submit-btns" @click="closeConfirmModal">괜찮아요</button>
       </div>
     </div>
   </div>
@@ -222,52 +222,47 @@ const submitReview = () => {
   display: flex;
   justify-content: center;
 }
+
 .movie-container {
   width: 60%;
   margin: auto 0;
   background-color: inherit;
   color: white;
 }
+
+/* 보고싶어요, 리뷰 작성 버튼 -------------------------------------------------------- */
 .movie-btns {
   display: flex;
-  justify-content: end;
+  justify-content: center;
   align-items: center;
+  padding-bottom: 1rem;
 }
+
 .movie-btns button {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.4rem;
-  background-color: var(--light-gray);
 }
 
 .movie-btns button:first-child {
   margin-right: 1rem;
 }
 
+.movie-btns button:not(.wishlist-checked) {
+  background-color: var(--light-gray);
+}
+
+.movie-btns button:hover {
+  background-color: var(--real-gray);
+  color: white;
+}
+
 .wishlist-checked {
   background-color: var(--light-blue);
   color: white;
 }
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 500px;
-  text-align: center;
-}
-
+/* 모달 (리뷰 작성, 보고싶어요 취소) ------------------------------------------ */
 @keyframes shake {
   0% {
     transform: translateX(0);
@@ -286,25 +281,67 @@ const submitReview = () => {
   }
 }
 
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content--create-review {
+  background: var(--card-black);
+  border: 0.5px solid var(--real-gray);
+  border-radius: 1rem;
+  padding: 2rem 3rem;
+  text-align: center;
+}
+
+.modal-content--gotoreview {
+  background: var(--card-black);
+  border: 0.5px solid var(--real-gray);
+  border-radius: 1rem;
+  padding: 2rem 3rem;
+  text-align: center;
+}
+
+.modal h3 {
+  font-size: 1.25rem;
+  color: white;
+  line-height: 2rem;
+}
+
 .modal.shake {
   animation: shake 0.5s ease-in-out;
 }
 
-textarea {
-  width: 100%;
-  height: 100px;
-  margin-bottom: 10px;
+.submit-btns {
+  margin: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
+.submit-btns:hover {
+  background-color: var(--real-gray);
+  color: white;
+}
+
+/* 리뷰 생성 모달 특화 스타일 --------------------------------------------- */
 .rating-input {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 10px 0;
+  margin: 1.5rem 0 2rem;
 }
 
-.rating-input button {
-  background-color: #3498db;
+.rating-btns {
+  background-color: var(--dark-gray); 
   color: white;
   border: none;
   border-radius: 50%;
@@ -315,6 +352,9 @@ textarea {
   margin: 0 10px;
 }
 
+.rating-btns:hover {
+  background-color: var(--real-gray);
+}
 .rating-input .stars {
   display: flex;
   gap: 5px;
@@ -329,30 +369,14 @@ textarea {
   color: gold;
 }
 
-.current-score {
-  margin: 10px 0;
-  font-size: 16px;
-  color: #333;
+textarea {
+  border-radius: 0.5rem;
+  width: 100%;
+  height: 150px;
+  margin-bottom: 10px;
+  padding: 0.75rem;
 }
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 400px;
-  text-align: center;
+textarea:focus {
+  outline: none;
 }
-
-.modal-content button {
-  margin: 10px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.modal-content button:hover {
-  opacity: 0.8;
-}
-
 </style>

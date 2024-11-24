@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <section>
     <!-- 로딩 중인 경우 -->
     <div v-if="loading" class="loading-container">
       <div class="loading-spinner">
@@ -9,6 +9,7 @@
 
     <!-- 로드 완료 후 콘텐츠 -->
     <div v-else>
+      <h2 class="review-list__title">REVIEW</h2>
       <ul v-if="reviews && reviews.length > 0" class="review-list">
         <li
           v-for="review in reviews"
@@ -16,9 +17,9 @@
           @click="goToReviewDetail(review.id)"
           class="review-item"
         >
-          <div>
+          <div class="item__author-container">
             <div class="item__author">{{ review.user }}</div>
-            <div class="item__rating">{{ review.score }}</div>
+            <div class="item__rating">★ {{ review.score }}</div>
           </div>
           <div class="item__desc-container">
             <div class="item__content">{{ review.content }}</div>
@@ -32,10 +33,10 @@
 
       <!-- 리뷰가 없는 경우 -->
       <div v-else class="no-review">
-        이 영화의 첫번째 리뷰어가 되실 수 있어요!
+        <p>다른 사용자에게 도움이 되도록<br>이 영화의 첫인상을 만들어주세요!</p>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
