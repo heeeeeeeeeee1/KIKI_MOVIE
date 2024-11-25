@@ -1,3 +1,5 @@
+
+<!-- MovieDetailView.vue -->
 <template>
   <div class="movie-detail-view">
     <div class="movie-container">

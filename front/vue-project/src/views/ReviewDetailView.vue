@@ -1,3 +1,4 @@
+<!-- ReviewDetailView.vue -->
 <template>
   <div class="page--review">
     <main class="review-container">
@@ -20,7 +21,7 @@
             <div class="edit-form">
               <div class="score-input">
                 <label>평점</label>
-                <input type="number" v-model="editForm.score" min="0" max="5" step="0.5" />
+                <input type="number" v-model="editForm.score" min="1" max="5" step="1" />
               </div>
               <textarea
                 v-model="editForm.content"
@@ -37,14 +38,25 @@
         <!-- 리뷰 본문 -->
         <div class="review-main">
           <div class="review-text">
-            <div class="movie-title">{{ singleReview.movie.title }}</div>
+            <router-link 
+              :to="{ name: 'MovieDetailView', params: { moviePk: singleReview.movie.id }}" 
+              class="movie-title-link"
+            >
+              <div class="movie-title">{{ singleReview.movie.title }}</div>
+            </router-link>
             <div class="score">평점: {{ singleReview.score }}점</div>
             <div class="genres">장르: {{ singleReview.movie_genres.join(', ') }}</div>
             <div class="content">{{ singleReview.content }}</div>
           </div>
-          <div class="movie-poster">
-            <img :src="`https://image.tmdb.org/t/p/w500${singleReview.movie.poster_path}`" :alt="singleReview.movie.title" />
-          </div>
+          <router-link 
+            :to="{ name: 'MovieDetailView', params: { moviePk: singleReview.movie.id }}" 
+            class="movie-poster"
+          >
+            <img 
+              :src="`https://image.tmdb.org/t/p/w500${singleReview.movie.poster_path}`" 
+              :alt="singleReview.movie.title"
+            />
+          </router-link>
         </div>
 
         <!-- 리뷰 반응 -->
@@ -446,5 +458,23 @@ onMounted(() => {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+.movie-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.movie-title-link:hover .movie-title {
+  color: #4CAF50;
+}
+
+.movie-poster {
+  display: block;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.movie-poster:hover {
+  transform: scale(1.05);
 }
 </style>
