@@ -12,11 +12,26 @@ from django.conf import settings
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 모델 파일 경로와 라벨 파일 경로를 지정합니다.
-MODEL_PATH = os.path.join(BASE_DIR, "apps", "predictions", "teachable_machine_model", "keras_model.h5")
-LABELS_PATH = os.path.join(BASE_DIR, "apps", "predictions", "teachable_machine_model", "labels")
+MODEL_PATH = os.path.join(BASE_DIR, "predictions", "teachable_machine_model", "keras_model.h5")
+LABELS_PATH = os.path.join(BASE_DIR,"predictions", "teachable_machine_model", "labels.txt")
+
+print(f"MODEL_PATH: {MODEL_PATH}")
+print(f"LABELS_PATH: {LABELS_PATH}")
+
+
+# 실제로 파일 존재하는지 확인
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(f"모델 파일을 찾을 수 없습니다: {MODEL_PATH}")
+if not os.path.exists(LABELS_PATH):
+    raise FileNotFoundError(f"라벨 파일을 찾을 수 없습니다: {LABELS_PATH}")
+
+
+import os
+print(f"Current working directory: {os.getcwd()}")
+
 
 # TMDB API 키를 설정합니다.
-TMDB_API_KEY = "TMDB_API_KEY"  # 실제 TMDB API 키로 변경 필요
+TMDB_API_KEY = settings.TMDB_API_KEY  # 실제 TMDB API 키로 변경 필요
 
 
 def get_actor_movies(actor_name):
