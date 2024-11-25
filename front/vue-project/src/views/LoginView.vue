@@ -1,5 +1,6 @@
 <template>
   <main class="login-main">
+    <RouterLink :to="{ name: 'MainHomeView' }"> 로고 </RouterLink>
     <section>
       <div class="login-container">
         <h1>LogIn</h1>
