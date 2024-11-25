@@ -4,7 +4,11 @@
       <div class="info-review">
         <div>
           <span>{{ author }}</span>
-          <span>{{ date }}</span>
+          <span>{{ formattedDate }}</span>
+        </div>
+        <div class="score-genres">
+          <span>평점: {{ score }}점</span>
+          <span>장르: {{ genres.join(', ') }}</span>
         </div>
       </div>
       <div class="content-review">
@@ -15,30 +19,45 @@
     <section class="detail-right">
       <div>
         <img
-          src="https://i.namu.wiki/i/78uTXq-Jd3ME_MYXtiyOo-qBPjwpiNF9qs1ko9YvE1BmaVagE9-h95a5Xuh0jVt6WX9sY8seQLZlU2GidF7Gcg.webp"
-          alt="포스터 이미지"
+          :src="getPosterUrl(poster)"
+          :alt="title + ' 포스터'"
         />
       </div>
-      <button v-if="isAuthor" @click="deleteReview">댓글 삭제</button>
+      <button v-if="isAuthor" @click="deleteReview">리뷰 삭제</button>
     </section>
   </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, computed } from "vue";
 
-// Props 정의
-defineProps(["title", "author", "date", "content", "isAuthor"]);
+const props = defineProps({
+  title: String,
+  author: String,
+  date: String,
+  content: String,
+  isAuthor: Boolean,
+  score: Number,
+  genres: {
+    type: Array,
+    default: () => []
+  },
+  poster: String
+});
 
-// Emits 정의
 const emit = defineEmits(["delete"]);
 
-// 리뷰 삭제 함수
+const formattedDate = computed(() => {
+  return new Date(props.date).toLocaleDateString();
+});
+
+const getPosterUrl = (path) => {
+  return path ? `https://image.tmdb.org/t/p/w500${path}` : '/default-poster.jpg';
+};
+
 const deleteReview = () => {
   emit("delete");
 };
-
-// 날짜 계산 표시 함수
 </script>
 
 <style scoped>

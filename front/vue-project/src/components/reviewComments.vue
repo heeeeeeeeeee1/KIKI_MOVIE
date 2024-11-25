@@ -10,8 +10,8 @@
         <article class="comment-box">
           <div class="comment">
             <div>
-              <span>{{ comment.author }}</span>
-              <button @click="deleteComment(comment.id)">x</button>
+              <span>{{ comment.user }}</span>
+              <button v-if="isCommentAuthor(comment)" @click="deleteComment(comment.id)">x</button>
             </div>
             <div>{{ comment.content }}</div>
           </div>
@@ -23,18 +23,28 @@
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
+import { useMovieStore } from "@/stores/movieStore";
 
-// Props 정의
-defineProps(["comments"]);
+const store = useMovieStore();
+const props = defineProps({
+  comments: {
+    type: Array,
+    default: () => []
+  }
+});
 
-// Emits 정의
 const emit = defineEmits(["deleteComment"]);
 
-// 댓글 삭제 함수
+const isCommentAuthor = (comment) => {
+  // 현재 사용자와 댓글 작성자 비교
+  return comment.user === store.currentUser;
+};
+
 const deleteComment = (id) => {
   emit("deleteComment", id);
 };
 </script>
+
 
 <style scoped>
 @import "@/assets/styles/components/reviewComments.css";

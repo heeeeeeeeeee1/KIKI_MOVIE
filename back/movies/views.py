@@ -2,6 +2,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
+from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework.permissions import IsAuthenticated
 
@@ -89,15 +90,110 @@ def create_review(request, movie_pk):
 
 # ReviewDetailView ######################################################################
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'DELETE'])
 def review_detail(request, review_pk):
-    """
-    특정 리뷰의 상세 정보를 반환
-    - /movies/reviews/<int:review_pk>/에 연결됨
-    """
     review = get_object_or_404(Review, pk=review_pk)
-    serializer = ReviewSerializer(review)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    if request.method == 'GET':
+        serializer = ReviewSerializer(review, context={'request': request})
+        return Response(serializer.data)
+    
+    # PUT과 DELETE는 인증 필요
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+    # 작성자만 수정/삭제 가능
+    if request.user != review.user:
+        return Response({'error': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'PUT':
+        serializer = ReviewSerializer(review, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        review.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_like_review(request, review_pk):
+    """
+    리뷰 좋아요 토글 기능
+    """
+    try:
+        review = Review.objects.get(pk=review_pk)
+        user = request.user
+        # 좋아요가 이미 있는지 확인
+        existing_like = ReviewLike.objects.filter(review=review, user=user).first()
+        liked = False
+        if existing_like:
+            # 좋아요 취소
+            existing_like.delete()
+        else:
+            # 좋아요 추가
+            ReviewLike.objects.create(review=review, user=user)
+            liked = True
+        
+        # 좋아요 수 반환
+        return Response({
+            'liked': liked,
+            'like_count': review.likes.count()
+        }, status=status.HTTP_200_OK)
+    except Review.DoesNotExist:
+        return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_comment(request, review_pk):
+    review = get_object_or_404(Review, pk=review_pk)
+    serializer = CommentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user, review=review)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def comment_detail(request, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    
+    if request.user != comment.user:
+        return Response({'error': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'PUT':
+        serializer = CommentSerializer(comment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def comment_detail(request, comment_pk):
+    """댓글 수정/삭제"""
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    
+    if request.user != comment.user:
+        return Response({'error': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'PUT':
+        serializer = CommentSerializer(comment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 """
 # 이전에 만들었던 ReviewDetailView 관련 ####################################################

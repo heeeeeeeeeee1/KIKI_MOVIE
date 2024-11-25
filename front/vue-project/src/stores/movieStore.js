@@ -29,22 +29,16 @@ export const useMovieStore = defineStore("movieStore", () => {
   
   // 단일 영화 정보 가져오기(로그인X)
   const getMovie = function (moviePk) {
+    movie.value = {}; // 초기화
     return axios({
       method: "get",
       url: `${API_URL}/movies/${moviePk}/detail/`,
-      // CONFLICT
-      // headers: { 
-      //   Authorization: `Token ${token.value}`
-      // },
     })
       .then((res) => {
         movie.value = res.data;
-        reviews.value = res.data.reviews;
-        // console.log("movieStore.js의 getMovie 함수 :", movie.value);
       })
       .catch((err) => {
         console.error("영화 데이터를 가져오는 중 오류:", err.response?.data || err.message);
-        throw err;
       });
   };
 
@@ -83,27 +77,6 @@ export const useMovieStore = defineStore("movieStore", () => {
         throw err;
       });
   };
-  
-  const toggleLikeReview = function (reviewPk) {
-    if (!token) {
-      alert("로그인이 필요합니다."); // 로그인 안내 메시지
-      return Promise.reject("로그인이 필요합니다.");
-    }
-    return axios({
-      method: "post",
-      url: `${API_URL}/review/${reviewPk}/like/`,
-      headers: { Authorization: `Token ${token}` },
-    })
-      .then((res) => {
-        const review = reviews.value.find(r => r.id === reviewPk);
-        if (review) {
-          review.like_count = res.data.like_count; // 좋아요 개수 업데이트
-        }
-      })
-      .catch((err) => {
-        console.error("좋아요 토글 실패:", err.response?.data || err.message);
-      });
-  };
 
   /////////////////////// 리뷰 상세 페이지 관련 /////////////////////
   const fetchReview = () => {
@@ -112,21 +85,51 @@ export const useMovieStore = defineStore("movieStore", () => {
   };
 
   // 리뷰 정보 가져오기(로그인X)
+  const isLoading = ref(false);
+
   const getSingleReview = function (reviewPk) {
-    axios({
+    isLoading.value = true;
+    return axios({
       method: "get",
-      url: `${API_URL}/movies/reviews/${reviewPk}/`, // 수정된 URL
+      url: `${API_URL}/movies/reviews/${reviewPk}/`,
+    })
+    .then((res) => {
+      singleReview.value = res.data;
+    })
+    .catch((err) => {
+      console.error("단일 리뷰 데이터를 가져오는 중 오류:", err.response?.data || err.message);
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
+  };
+
+  const toggleLikeReview = function (reviewPk) {
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "post",
+      url: `${API_URL}/movies/reviews/${reviewPk}/like/`,
+      headers: { Authorization: `Token ${token}` },
     })
       .then((res) => {
-        console.log("가져온 리뷰 상세 정보:", res.data);
-        singleReview.value = res.data;
-        return res.data;
+        // 현재 리뷰의 liked 상태와 like_count 업데이트
+        if (singleReview.value && singleReview.value.id === reviewPk) {
+          singleReview.value = {
+            ...singleReview.value,
+            liked: !singleReview.value.liked,
+            like_count: singleReview.value.liked 
+              ? singleReview.value.like_count - 1 
+              : singleReview.value.like_count + 1
+          };
+        }
+        return singleReview.value;
       })
       .catch((err) => {
-        console.error(
-          "단일 리뷰를 가져오는 중 오류:",
-          err.response?.data || err.message
-        );
+        console.error("좋아요 토글 실패:", err.response?.data || err.message);
         throw err;
       });
   };
@@ -153,19 +156,75 @@ export const useMovieStore = defineStore("movieStore", () => {
     });
   };
 
-  // 댓글 생성(로그인O)
-  const createComment = function (moviePk, reviewPk, content) {
-    axios({
-      method: "post",
-      url: `${API_URL}/movies/${moviePk}/review/${reviewPk}/comment/create/`,
-      data: { content },
-      headers: { Authorization: `Token ${token.value}` },
+  const updateReview = function (reviewPk, data) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "put",
+      url: `${API_URL}/movies/reviews/${reviewPk}/`,
+      data: data,
+      headers: { Authorization: `Token ${token}` }
     })
     .then((res) => {
-      alert("댓글 작성 성공!");
+      console.log("리뷰 수정 성공:", res.data);
+      return res.data;
     })
     .catch((err) => {
-      console.error("댓글 작성 실패:", err.response?.data || err.message);
+      console.error("리뷰 수정 실패:", err.response?.data || err.message);
+      throw err;
+    });
+  };
+  
+  const deleteReview = function (reviewPk) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "delete",
+      url: `${API_URL}/movies/reviews/${reviewPk}/`,
+      headers: { Authorization: `Token ${token}` }
+    });
+  };
+
+  // 댓글 생성(로그인O)
+  const createComment = function (reviewPk, content) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+    
+    return axios({
+      method: "post",
+      url: `${API_URL}/movies/reviews/${reviewPk}/comments/`,
+      data: { content },
+      headers: { Authorization: `Token ${token}` }
+    });
+  };
+
+  const updateComment = function (commentId, content) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "put",
+      url: `${API_URL}/movies/reviews/comments/${commentId}/`,
+      data: { content },
+      headers: { Authorization: `Token ${token}` }
+    });
+  };
+  
+  const deleteComment = function (commentId) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "delete",
+      url: `${API_URL}/movies/reviews/comments/${commentId}/`,
+      headers: { Authorization: `Token ${token}` }
     });
   };
 
@@ -179,8 +238,12 @@ export const useMovieStore = defineStore("movieStore", () => {
     fetchMovieReviews,
     toggleLikeReview,
     getSingleReview,
+    updateReview,
+    deleteReview,
     createReview,
     createComment,
+    updateComment,
+    deleteComment,
     toggleWishlist,
   };
 });
