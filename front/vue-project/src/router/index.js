@@ -7,6 +7,9 @@ import SignUpView from "@/views/SignUpView.vue";
 import LogInView from "@/views/LoginView.vue";
 import UserProfileView from "@/views/UserProfileView.vue";
 import UserEditView from "@/views/UserEditView.vue";
+import RouletteView from "@/views/RouletteView.vue";
+import KikiMovieView from "@/views/KikiMovieView.vue"; // 추천 메인 페이지
+import PredictActor from "@/components/PredictActor.vue"; // 닮은 배우 추천 컴포넌트
 
 import MovieDetailView from "@/views/MovieDetailView.vue";
 import ReviewDetailView from "@/views/ReviewDetailView.vue";
@@ -52,6 +55,31 @@ const router = createRouter({
       path: "/movies/reviews/:reviewPk",
       name: "ReviewDetailView",
       component: ReviewDetailView,
+    },
+    {
+      path: "/profile",
+      name: "UserProfileView",
+      component: UserProfileView,
+    },
+    {
+      path: "/profile/edit",
+      name: "UserEditView",
+      component: UserEditView,
+    },
+    {
+      path: "/kikimovie", // 기본 경로
+      name: "KikiMovieView",
+      component: KikiMovieView, // 메인 추천 페이지
+    },
+    {
+      path: "/kikimovie/predict", // 닮은꼴 추천 경로
+      name: "PredictActor",
+      component: PredictActor,
+    },
+    {
+      path: "/roulette",
+      name: "RouletteView",
+      component: RouletteView,
     },
     // {
     //   path: '/profile',

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 from decouple import config
 from pathlib import Path
+import os
 
 # API_KEY 추가
 TMDB_API_KEY = config('TMDB_API_KEY')
@@ -18,6 +19,9 @@ TMDB_API_KEY = config('TMDB_API_KEY')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# 사용자 사진 저장
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -28,7 +32,8 @@ SECRET_KEY = 'django-insecure-q9(p58-l(w+%yzq_xn%e4^$wks$(-9w*-j9k1$r2t_0!#%mly=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# 서버 오류로 인한 추가
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -37,6 +42,8 @@ CUSTOM_APPS = [
     # 추가 앱 (accounts, movies)
     'accounts.apps.AccountsConfig',
     'movies.apps.MoviesConfig',
+    # 인공지능 예측 앱 추가
+    'predictions.apps.PredictionsConfig',
     'rest_framework',
     # CORS policy
     "corsheaders",
@@ -61,6 +68,7 @@ SYSTEM_APPS = [
 ]
 
 INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
+
 
 SITE_ID = 1
 
@@ -159,7 +167,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
+    'http://127.0.0.1:8000',
     'http://localhost:5173',
+    'http://127.0.0.1:5173',
     ]
 
 REST_FRAMEWORK = {
