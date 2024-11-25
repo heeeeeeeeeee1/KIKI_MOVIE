@@ -7,8 +7,8 @@
     <div class="profile-text">
       <h3 class="nickname">{{ profileData.username }}</h3>
       <p>
-        {{ profileData.ageGroup || '연령대' }}
-        {{ profileData.gender || '성별'}} |
+        {{ profileData.ageGroup || '연령대' }} | 
+        {{ profileData.gender || 'X'}} |
         {{ profileData.email || '이메일 정보없음'}}
       </p>
       <p>{{ profileData.introduce || '자기 소개가 없습니다.' }}</p>
@@ -64,7 +64,7 @@ const profileData = computed(() => {
 
   return {
     ...rest,
-    gender: genderMap[gender] || '성별',
+    gender: genderMap[gender] || 'X',
     ageGroup: ageGroup || '연령대',
     introduce: introduce || '자기소개가 없습니다',
   };
