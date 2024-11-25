@@ -41,6 +41,15 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'content', 'created_at', 'user']
 
+# 간소화된 영화 정보 시리얼라이저 (리뷰를 위한)
+class SimpleMovieSerializer(serializers.ModelSerializer):
+    genres = serializers.StringRelatedField(many=True)  # 간단한 필드로 변경
+    actors = serializers.StringRelatedField(many=True)
+    directors = serializers.StringRelatedField(many=True)
+
+    class Meta:
+        model = Movie
+        fields = ['id', 'title', 'poster_path', 'release_date', 'genres', 'actors', 'directors']
 
 # 리뷰
 class ReviewSerializer(serializers.ModelSerializer):
@@ -48,14 +57,14 @@ class ReviewSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)  # 댓글 배열을 포함
     comment_count = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
-    # CONFLICT > user = serializers.CharField(source='user.username', read_only=True)  # 사용자 이름만 포함
-    # CONFLICT > comments = CommentSerializer(many=True, read_only=True)  # 연결된 댓글 포함
+    movie = serializers.SerializerMethodField()
+    movie_genres = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
         fields = [
             'id', 'content', 'score', 'created_at', 'user', 
-            'comments', 'comment_count', 'like_count'
+            'comments', 'comment_count', 'like_count', 'movie', 'movie_genres',
         ]
 
     def get_comment_count(self, obj):
@@ -63,6 +72,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def get_like_count(self, obj):
         return obj.likes.count()
+    
+    def get_movie(self, obj):
+        from .serializers import SimpleMovieSerializer  # 여기서 필요한 시점에만 가져옴
+        return SimpleMovieSerializer(obj.movie).data
+    
+    # 영화의 장르 이름 목록 반환
+    def get_movie_genres(self, obj):
+        return [genre.name for genre in obj.movie.genres.all()]
 
 # -------------------------------------------------------
 
