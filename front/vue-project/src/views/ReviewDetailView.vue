@@ -39,6 +39,18 @@
           </button>
         </div>
 
+        <div v-if="showCommentForm" class="modal">
+          <div class="modal-content">
+            <h3>댓글 작성</h3>
+            <textarea
+              v-model="newComment"
+              placeholder="댓글을 입력하세요"
+              class="comment-input"
+            ></textarea>
+            <button @click="submitComment">등록</button>
+            <button @click="toggleCommentForm">취소</button>
+          </div>
+        </div>
         <!-- 댓글 섹션 -->
         <div class="comments-section">
           <div v-if="singleReview.comments.length === 0" class="no-comments">
@@ -70,10 +82,14 @@ import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const store = useMovieStore();
+
 const singleReview = computed(() => store.singleReview);
 const isLiked = computed(() => singleReview.value?.liked || false);
 const likeCount = computed(() => singleReview.value?.like_count || 0);
 const { getSingleReview, toggleLikeReview } = store;
+
+const showCommentForm = ref(false);
+const newComment = ref("");
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString();
@@ -100,8 +116,27 @@ const handleLike = async () => {
 };
 
 const toggleCommentForm = () => {
-  console.log("댓글 폼 토글");
+  showCommentForm.value = !showCommentForm.value;
 };
+
+const submitComment = async () => {
+  if (!newComment.value.trim()) {
+    alert("댓글 내용을 입력해주세요.");
+    return;
+  }
+
+  try {
+    await store.createComment(route.params.reviewPk, newComment.value);
+    await store.getSingleReview(route.params.reviewPk); // 댓글 작성 후 리뷰 데이터 새로고침
+    newComment.value = ''; // 입력 필드 초기화
+    toggleCommentForm(); // 모달 닫기
+    console.log("댓글 작성 완료");
+  } catch (error) {
+    console.error("댓글 작성 실패:", error.response?.data || error.message);
+    alert("댓글 작성 중 오류가 발생했습니다.");
+  }
+};
+
 
 const deleteComment = (id) => {
   console.log("댓글 삭제:", id);
@@ -266,5 +301,33 @@ onMounted(() => {
   text-align: center;
   padding: 2rem;
   color: #666;
+}
+
+.review-detail {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+}
+.comment-input {
+  width: 100%;
+  min-height: 100px;
+  margin: 1rem 0;
 }
 </style>

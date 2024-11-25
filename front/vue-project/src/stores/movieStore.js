@@ -157,18 +157,16 @@ export const useMovieStore = defineStore("movieStore", () => {
   };
 
   // 댓글 생성(로그인O)
-  const createComment = function (moviePk, reviewPk, content) {
-    axios({
+  const createComment = function (reviewPk, content) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+    
+    return axios({
       method: "post",
-      url: `${API_URL}/movies/${moviePk}/review/${reviewPk}/comment/create/`,
+      url: `${API_URL}/movies/reviews/${reviewPk}/comments/`,
       data: { content },
-      headers: { Authorization: `Token ${token.value}` },
-    })
-    .then((res) => {
-      alert("댓글 작성 성공!");
-    })
-    .catch((err) => {
-      console.error("댓글 작성 실패:", err.response?.data || err.message);
+      headers: { Authorization: `Token ${token}` }
     });
   };
 
