@@ -96,8 +96,66 @@ def review_detail(request, review_pk):
     - /movies/reviews/<int:review_pk>/에 연결됨
     """
     review = get_object_or_404(Review, pk=review_pk)
-    serializer = ReviewSerializer(review)
+    serializer = ReviewSerializer(review, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_like_review(request, review_pk):
+    """
+    리뷰 좋아요 토글 기능
+    """
+    try:
+        review = Review.objects.get(pk=review_pk)
+        user = request.user
+        # 좋아요가 이미 있는지 확인
+        existing_like = ReviewLike.objects.filter(review=review, user=user).first()
+        liked = False
+        if existing_like:
+            # 좋아요 취소
+            existing_like.delete()
+        else:
+            # 좋아요 추가
+            ReviewLike.objects.create(review=review, user=user)
+            liked = True
+        
+        # 좋아요 수 반환
+        return Response({
+            'liked': liked,
+            'like_count': review.likes.count()
+        }, status=status.HTTP_200_OK)
+    except Review.DoesNotExist:
+        return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_comment(request, review_pk):
+    review = get_object_or_404(Review, pk=review_pk)
+    serializer = CommentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user, review=review)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def comment_detail(request, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    
+    if request.user != comment.user:
+        return Response({'error': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'PUT':
+        serializer = CommentSerializer(comment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
 
 """
 # 이전에 만들었던 ReviewDetailView 관련 ####################################################

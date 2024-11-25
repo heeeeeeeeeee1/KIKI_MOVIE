@@ -28,8 +28,11 @@
 
         <!-- 리뷰 반응 -->
         <div class="review-reactions">
-          <button @click="handleLike" class="like-btn">
-            좋아요 {{ singleReview.like_count }}
+          <button
+            :class="{ 'liked': isLiked }" 
+            @click="handleLike"
+            class="like-btn">
+            좋아요 {{ likeCount }}
           </button>
           <button @click="toggleCommentForm" class="comment-btn">
             댓글 {{ singleReview.comment_count }}
@@ -60,13 +63,17 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute } from 'vue-router';
 import { useMovieStore } from "@/stores/movieStore.js";
+import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const store = useMovieStore();
-const { singleReview, getSingleReview } = store;
+const singleReview = computed(() => store.singleReview);
+const isLiked = computed(() => singleReview.value?.liked || false);
+const likeCount = computed(() => singleReview.value?.like_count || 0);
+const { getSingleReview, toggleLikeReview } = store;
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString();
@@ -80,8 +87,16 @@ const isCommentAuthor = (comment) => {
   return false; // 현재 로그인한 사용자와 비교 로직 필요
 };
 
-const handleLike = () => {
-  console.log("좋아요 처리");
+const handleLike = async () => {
+  const reviewPk = route.params.reviewPk;
+  if (!reviewPk) return;
+  
+  try {
+    await store.toggleLikeReview(reviewPk);
+    await store.getSingleReview(reviewPk); // 리뷰 데이터 새로 불러오기
+  } catch (err) {
+    console.error("좋아요 토글 실패:", err);
+  }
 };
 
 const toggleCommentForm = () => {
@@ -96,8 +111,19 @@ const deleteReview = () => {
   console.log("리뷰 삭제");
 };
 
+const isLoading = ref(false);
+
 onMounted(() => {
-  getSingleReview(route.params.reviewPk);
+  isLoading.value = true;
+  getSingleReview(route.params.reviewPk)
+    .then(() => {
+      isLoading.value = false;
+      console.log("리뷰 데이터를 성공적으로 가져왔습니다.");
+    })
+    .catch((err) => {
+      console.error("리뷰 데이터를 가져오는 중 오류:", err);
+      isLoading.value = false;
+    });
 });
 </script>
 
@@ -188,6 +214,12 @@ onMounted(() => {
   border-radius: 4px;
   background: white;
   cursor: pointer;
+}
+
+.like-btn.liked {
+  background-color: #ffcccc;
+  border-color: #ff6666;
+  color: white;
 }
 
 .comments-section {
