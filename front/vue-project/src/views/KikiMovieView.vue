@@ -3,13 +3,14 @@
   <h1>추천 메인 페이지</h1>
   <main class="main-home-container">
     <div class="main-home">
-
       <!-- PredictActor 추천 -->
       <div class="recommendation-box">
         <RouterLink :to="{ name: 'PredictActor' }">
-          <h2>나와 닮은 배우가 출연한 영화가 궁금하다면?</h2>
+          <img
+            src="https://img2.quasarzone.com/editor/2023/04/15/6531cd90af5bc0c06d4fd958214fdd7a.png"
+            alt=""
+          />
         </RouterLink>
-
       </div>
 
       <!-- 추가 추천 알고리즘 1 모달로 가능한가...-->
@@ -19,8 +20,6 @@
         <p>이 섹션에는 추천 알고리즘 1의 내용이 표시됩니다.</p>
         <button class="action-button">자세히 보기</button>
       </div>
-
-
     </div>
   </main>
 </template>
@@ -73,11 +72,12 @@ export default defineComponent({
   background: #444;
   color: white;
   margin: 20px;
-  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
   width: 300px;
+  height: 300px;
+  overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -86,6 +86,12 @@ export default defineComponent({
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
+.recommendation-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1rem;
+}
 /* 버튼 스타일 */
 .action-button {
   background-color: #61dafb;
