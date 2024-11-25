@@ -1,17 +1,18 @@
 <template>
-  <Header />
-  <main>
+  <Header v-if="!route.meta.hideHeader" />
+  <main :class="{ 'no-padding': route.meta.hideHeader }">
     <RouterView />
   </main>
   <Footer />
 </template>
 
 <script setup>
+import { useRoute } from "vue-router";
 import { RouterView } from "vue-router";
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
 
-
+const route = useRoute();
 </script>
 
 <style>
@@ -23,5 +24,10 @@ import Footer from "@/components/Footer.vue";
 <style scoped>
 main {
   padding-top: 3rem;
+  position: relative;
+}
+
+main.no-padding {
+  padding-top: 0;
 }
 </style>
