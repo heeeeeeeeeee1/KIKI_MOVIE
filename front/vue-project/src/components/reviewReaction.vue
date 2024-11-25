@@ -1,25 +1,34 @@
 <template>
   <div class="review-reaction-container">
-    <button @click="handleLike">좋아요 {{ likes }}</button>
-    <button @click="toggleCommentForm">댓글</button>
+    <button @click="handleLike">
+      좋아요 {{ likes }}
+    </button>
+    <button @click="toggleCommentForm">
+      댓글 {{ commentCount }}
+    </button>
   </div>
 </template>
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
 
-// Props 정의
-defineProps(["likes"]);
+const props = defineProps({
+  likes: {
+    type: Number,
+    default: 0
+  },
+  commentCount: {
+    type: Number,
+    default: 0
+  }
+});
 
-// Emits 정의
 const emit = defineEmits(["like", "toggleComment"]);
 
-// 좋아요 클릭 핸들러
 const handleLike = () => {
   emit("like");
 };
 
-// 댓글 폼 토글 핸들러
 const toggleCommentForm = () => {
   emit("toggleComment");
 };
