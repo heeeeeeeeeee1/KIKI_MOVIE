@@ -93,9 +93,27 @@
             <div v-for="comment in singleReview.comments" :key="comment.id" class="comment">
               <div class="comment-header">
                 <span class="comment-author">{{ comment.user }}</span>
-                <button v-if="isCommentAuthor(comment)" @click="deleteComment(comment.id)" class="delete-comment">×</button>
+                <div v-if="isCommentAuthor(comment)" class="comment-actions">
+                  <button @click="openEditCommentModal(comment)" class="edit-comment">수정</button>
+                  <button @click="confirmDeleteComment(comment.id)" class="delete-comment">×</button>
+                </div>
               </div>
               <div class="comment-content">{{ comment.content }}</div>
+            </div>
+          </div>
+        </div>
+        <!-- 댓글 수정 모달 -->
+        <div v-if="showEditCommentModal" class="modal">
+          <div class="modal-content">
+            <h3>댓글 수정</h3>
+            <textarea
+              v-model="editCommentForm.content"
+              class="comment-input"
+              placeholder="댓글 내용을 입력하세요"
+            ></textarea>
+            <div class="modal-actions">
+              <button @click="submitCommentEdit" class="submit-btn">수정</button>
+              <button @click="closeEditCommentModal" class="cancel-btn">취소</button>
             </div>
           </div>
         </div>
@@ -135,6 +153,12 @@ const showEditModal = ref(false);
 const editForm = ref({
   content: '',
   score: 0
+});
+
+const showEditCommentModal = ref(false);
+const editCommentForm = ref({
+  id: null,
+  content: ''
 });
 
 const isAuthor = computed(() => {
@@ -177,7 +201,7 @@ const confirmDelete = async () => {
 };
 
 const isCommentAuthor = (comment) => {
-  return false; // 현재 로그인한 사용자와 비교 로직 필요
+  return comment.user === counterStore.username;
 };
 
 const handleLike = async () => {
@@ -214,13 +238,45 @@ const submitComment = async () => {
   }
 };
 
-
-const deleteComment = (id) => {
-  console.log("댓글 삭제:", id);
+const openEditCommentModal = (comment) => {
+  editCommentForm.value = {
+    id: comment.id,
+    content: comment.content
+  };
+  showEditCommentModal.value = true;
 };
 
-const deleteReview = () => {
-  console.log("리뷰 삭제");
+const closeEditCommentModal = () => {
+  showEditCommentModal.value = false;
+  editCommentForm.value = { id: null, content: '' };
+};
+
+const submitCommentEdit = async () => {
+  if (!editCommentForm.value.content.trim()) {
+    alert("댓글 내용을 입력해주세요.");
+    return;
+  }
+
+  try {
+    await store.updateComment(editCommentForm.value.id, editCommentForm.value.content);
+    await store.getSingleReview(route.params.reviewPk);
+    closeEditCommentModal();
+  } catch (error) {
+    console.error("댓글 수정 실패:", error);
+    alert("댓글 수정 중 오류가 발생했습니다.");
+  }
+};
+
+const confirmDeleteComment = async (commentId) => {
+  if (!confirm('정말로 이 댓글을 삭제하시겠습니까?')) return;
+  
+  try {
+    await store.deleteComment(commentId);
+    await store.getSingleReview(route.params.reviewPk);
+  } catch (error) {
+    console.error('댓글 삭제 실패:', error);
+    alert('댓글 삭제 중 오류가 발생했습니다.');
+  }
 };
 
 const isLoading = ref(false);
@@ -476,5 +532,30 @@ onMounted(() => {
 
 .movie-poster:hover {
   transform: scale(1.05);
+}
+
+.comment-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-comment {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.delete-comment {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: #ff4444;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
 }
 </style>

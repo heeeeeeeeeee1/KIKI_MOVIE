@@ -203,6 +203,31 @@ export const useMovieStore = defineStore("movieStore", () => {
     });
   };
 
+  const updateComment = function (commentId, content) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "put",
+      url: `${API_URL}/movies/reviews/comments/${commentId}/`,
+      data: { content },
+      headers: { Authorization: `Token ${token}` }
+    });
+  };
+  
+  const deleteComment = function (commentId) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "delete",
+      url: `${API_URL}/movies/reviews/comments/${commentId}/`,
+      headers: { Authorization: `Token ${token}` }
+    });
+  };
+
   return {
     movie,
     movies,
@@ -217,6 +242,8 @@ export const useMovieStore = defineStore("movieStore", () => {
     deleteReview,
     createReview,
     createComment,
+    updateComment,
+    deleteComment,
     toggleWishlist,
   };
 });
