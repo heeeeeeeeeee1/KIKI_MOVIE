@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from django.shortcuts import get_object_or_404, get_list_or_404
-from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from .models import *
@@ -90,7 +89,15 @@ def create_review(request, movie_pk):
 
 # ReviewDetailView ######################################################################
 
-
+@api_view(['GET'])
+def review_detail(request, review_pk):
+    """
+    특정 리뷰의 상세 정보를 반환
+    - /movies/reviews/<int:review_pk>/에 연결됨
+    """
+    review = get_object_or_404(Review, pk=review_pk)
+    serializer = ReviewSerializer(review)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 """
 # 이전에 만들었던 ReviewDetailView 관련 ####################################################
@@ -101,13 +108,6 @@ def movie_review(request, movie_pk, review_pk):
     review = get_object_or_404(Review, pk=review_pk, movie_id=movie_pk)
 
 # ---------- 리뷰 ----------
-# 리뷰 조회, 생성, 수정, 삭제
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
-def review_handler(request, movie_pk, review_pk):
-    # 리뷰 조회 (GET - 전체 리뷰 또는 단일 리뷰)
-    if request.method == 'GET':
-        serializer = ReviewSerializer(review)
-        return Response(serializer.data)
 
 # 리뷰 좋아요 추가 제거
 @api_view(['POST'])
