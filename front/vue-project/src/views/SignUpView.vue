@@ -1,10 +1,10 @@
 <template>
-  <main class="signup-main">
+  <div class="signup-main">
     <section class="signup-left">
       <div>
         <h1>
-          당신의 데이터를 기반으로<br/>
-          개인 맞춤형 영화 추천을<br/>
+          당신의 데이터를 기반으로<br />
+          개인 맞춤형 영화 추천을<br />
           경험해보세요
         </h1>
       </div>
@@ -15,30 +15,52 @@
         <form @submit.prevent="signUp">
           <div class="form__input">
             <label for="email">이메일</label>
-            <input type="email" id="email" v-model.trim="email" required/>
+            <input type="email" id="email" v-model.trim="email" required />
           </div>
           <div class="form__input">
             <label for="username">닉네임</label>
-            <input type="text" id="username" v-model.trim="username" required/>
+            <input type="text" id="username" v-model.trim="username" required />
           </div>
           <div class="form__input">
             <label for="password1">비밀번호</label>
-            <input type="password" id="password1" v-model.trim="password1" required/>
+            <input
+              type="password"
+              id="password1"
+              v-model.trim="password1"
+              required
+            />
           </div>
           <div class="form__input">
             <label for="password2">비밀번호 확인</label>
-            <input type="password" id="password2" v-model.trim="password2" required/>
+            <input
+              type="password"
+              id="password2"
+              v-model.trim="password2"
+              required
+            />
           </div>
           <div class="form__input">
             <label for="gender">성별</label>
             <div class="input_gender">
-              <input type="button" id="male" value="남성" :class="{ selected: gender === 'male' }" @click="gender = 'male'"/>
-              <input type="button" id="female" value="여성" :class="{ selected: gender === 'female' }" @click="gender = 'female'"/>
+              <input
+                type="button"
+                id="male"
+                value="남성"
+                :class="{ selected: gender === 'male' }"
+                @click="gender = 'male'"
+              />
+              <input
+                type="button"
+                id="female"
+                value="여성"
+                :class="{ selected: gender === 'female' }"
+                @click="gender = 'female'"
+              />
             </div>
           </div>
           <div class="form__input">
             <label for="birth_date">태어난 년도</label>
-            <input type="date" id="birth_date" v-model="birth_date" required/>
+            <input type="date" id="birth_date" v-model="birth_date" required />
           </div>
           <input type="submit" value="회원가입" />
         </form>
@@ -55,14 +77,13 @@
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { useCounterStore } from "@/stores/counter";
 import { useRouter } from "vue-router";
-
 
 const username = ref(null);
 const password1 = ref(null);
@@ -84,19 +105,18 @@ const signUp = function () {
     username: username.value,
     password1: password1.value,
     password2: password2.value,
-    gender: gender.value === 'male' ? 'M' : 'W',
+    gender: gender.value === "male" ? "M" : "W",
     email: email.value,
     birth_date: birth_date.value,
   };
   store.signUp(payload);
 
-  router.push({ name: "LogInView" })
-
+  router.push({ name: "LogInView" });
 };
 </script>
 
 <style scoped>
-@media (max-width: 820px) {
+@media (max-width: 989px) {
   .signup-main {
     flex-direction: column;
   }
@@ -121,7 +141,7 @@ const signUp = function () {
     margin: 2rem 0 4rem;
   }
 }
-@media (min-width: 820px) {
+@media (min-width: 990px) {
   .signup-main {
     flex-direction: row;
   }
@@ -129,10 +149,10 @@ const signUp = function () {
     width: 50%;
   }
   .signup-left h1 {
-  margin: 3rem auto;
-  font-size: 2.5rem;
-  line-height: 3.5rem;
-  text-wrap: nowrap;
+    margin: 3rem auto;
+    font-size: 2.5rem;
+    line-height: 3.5rem;
+    text-wrap: nowrap;
   }
   .right__form {
     width: 60%;
@@ -271,7 +291,6 @@ input[type="submit"] {
   border-radius: 50%;
   background-color: white;
   padding: 0.5rem;
-
 }
 .social-login > div > img {
   width: 100%;
@@ -281,5 +300,4 @@ input[type="submit"] {
   margin-left: 3rem;
   background-color: yellow;
 }
-
 </style>
