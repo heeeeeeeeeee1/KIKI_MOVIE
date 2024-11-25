@@ -65,7 +65,7 @@ onMounted(() => {
 });
 
 function goToReviewDetail(reviewId) {
-  router.push(`/review/${reviewId}`);
+  router.push(`/movies/reviews/${reviewId}`);
 }
 
 // const reviews = ref([

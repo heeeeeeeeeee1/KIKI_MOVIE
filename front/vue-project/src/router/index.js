@@ -1,27 +1,29 @@
 import { createRouter, createWebHistory } from "vue-router";
-
-import MainHomeView from "@/views/MainHomeView.vue";
-import SignUpView from "@/views/SignUpView.vue";
-import LogInView from "@/views/LoginView.vue";
-import ReviewDetailView from "@/views/ReviewDetailView.vue";
-
 import { useCounterStore } from "@/stores/counter";
 
-import MovieDetailView from "@/views/MovieDetailView.vue"; // 영화 상세 정보
+import MainHomeView from "@/views/MainHomeView.vue";
+
+import SignUpView from "@/views/SignUpView.vue";
+import LogInView from "@/views/LoginView.vue";
 import UserProfileView from "@/views/UserProfileView.vue";
 import UserEditView from "@/views/UserEditView.vue";
 import RouletteView from "@/views/RouletteView.vue";
 import KikiMovieView from "@/views/KikiMovieView.vue"; // 추천 메인 페이지
 import PredictActor from "@/components/PredictActor.vue"; // 닮은 배우 추천 컴포넌트
 
+import MovieDetailView from "@/views/MovieDetailView.vue";
+import ReviewDetailView from "@/views/ReviewDetailView.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // 메인 페이지
     {
       path: "/",
       name: "MainHomeView",
       component: MainHomeView,
     },
+    // accounts 관련 (회원 가입, 로그인, 프로필, 프로필 수정)
     {
       path: "/signup",
       name: "SignUpView",
@@ -35,17 +37,24 @@ const router = createRouter({
       meta: { hideHeader: true },
     },
     {
-      path: "/review/",
-      name: "ReviewDetailView",
-      component: ReviewDetailView,
+      path: '/profile',
+      name: 'UserProfileView',
+      component: UserProfileView,
     },
+    {
+      path: '/profile/edit',
+      name: 'UserEditView',
+      component: UserEditView,
+    },
+    // movies 내 영화 상세 페이지
     {
       path: "/movies/:moviePk",
       name: "MovieDetailView",
       component: MovieDetailView, // 영화 상세 페이지
     },
+    // movies 내 리뷰 상세 페이지
     {
-      path: "/movies/:moviePk/review/:reviewPk",
+      path: "/movies/reviews/:reviewPk",
       name: "ReviewDetailView",
       component: ReviewDetailView,
     },

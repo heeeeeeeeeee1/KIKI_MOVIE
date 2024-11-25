@@ -1,6 +1,12 @@
 <template>
   <div class="page--review">
     <main class="review-container">
+      <button @click="fetchReview">리뷰 가져오기</button>
+      <div v-if="singleReview">
+        <p>리뷰 제목: {{ singleReview.title }}</p>
+        <p>작성자: {{ singleReview.author }}</p>
+        <p>리뷰 내용: {{ singleReview.content }}</p>
+      </div>
       <ReviewDetail
         :title="title"
         :poster="poster"
@@ -25,17 +31,19 @@ import { ref } from "vue";
 import ReviewDetail from "@/components/reviewDetail.vue";
 import ReviewReaction from "@/components/reviewReaction.vue";
 import ReviewComments from "@/components/reviewComments.vue";
+import { useMovieStore } from "@/stores/movieStore.js";
 
+const store = useMovieStore();
+const { singleReview, getSingleReview } = store;
+
+// 더미 데이터
 const title = ref("영화 제목");
 const poster = ref("");
-
 const author = ref("작성자");
 const date = ref("2024-11-21");
 const content = ref("최고 기깔난 영화");
 const isAuthor = ref(true);
-
 const likes = ref(10);
-
 const comments = ref([
   { id: 1, author: "이제훈", content: "첫 번째 댓글" },
   { id: 2, author: "노진원", content: "두 번째 댓글" },
@@ -55,6 +63,11 @@ const toggleCommentForm = () => {
 
 const deleteComment = (id) => {
   comments.value = comments.value.filter((comment) => comment.id !== id);
+};
+
+const fetchReview = () => {
+  console.log("리뷰 데이터를 가져옵니다...");
+  getSingleReview(1); // moviePk와 reviewPk는 임의로 설정
 };
 </script>
 

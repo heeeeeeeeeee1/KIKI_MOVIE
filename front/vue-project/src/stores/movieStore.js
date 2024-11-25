@@ -105,21 +105,30 @@ export const useMovieStore = defineStore("movieStore", () => {
       });
   };
 
+  /////////////////////// 리뷰 상세 페이지 관련 /////////////////////
+  const fetchReview = () => {
+    console.log("리뷰 데이터를 가져옵니다...");
+    getSingleReview(1); // reviewPk만 전달
+  };
+
   // 리뷰 정보 가져오기(로그인X)
-  const getSingleReview = function (moviePk, reviewPk) {
+  const getSingleReview = function (reviewPk) {
     axios({
       method: "get",
-      url: `${API_URL}/movies/${moviePk}/review/${reviewPk}/`,
-    })  
-    .then((res) => {
-      singleReview.value = res.data;
+      url: `${API_URL}/movies/reviews/${reviewPk}/`, // 수정된 URL
     })
-    .catch((err) => {
-      console.error(
-        "단일 리뷰를 가져오는 중 오류:",
-        err.response?.data || err.message
-      );
-    });
+      .then((res) => {
+        console.log("가져온 리뷰 상세 정보:", res.data);
+        singleReview.value = res.data;
+        return res.data;
+      })
+      .catch((err) => {
+        console.error(
+          "단일 리뷰를 가져오는 중 오류:",
+          err.response?.data || err.message
+        );
+        throw err;
+      });
   };
 
   // 리뷰 작성(로그인O)
@@ -164,6 +173,7 @@ export const useMovieStore = defineStore("movieStore", () => {
     movie,
     movies,
     reviews,
+    singleReview,
     API_URL,
     getMovie,
     fetchMovieReviews,
