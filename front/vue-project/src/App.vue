@@ -25,6 +25,7 @@ const route = useRoute();
 main {
   padding-top: 3rem;
   position: relative;
+  min-height: 700px;
 }
 
 main.no-padding {

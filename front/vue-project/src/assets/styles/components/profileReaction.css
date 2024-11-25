@@ -1,60 +1,196 @@
+/* profileReaction.css */
 .profile-reaction {
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.profile-reaction button {
+  background-color: var(--dark-gray);
+  width: 200px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin-right: 10px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.profile-reaction button.active {
+  background-color: var(--real-blue);
+  cursor: default;
+  pointer-events: none;
+}
+
+.profile-reaction button:not(.active):hover {
+  background-color: var(--light-blue);
+}
+.my-movie-container {
+  display: flex;
+  justify-content: center;
+}
+.watched-info {
+  display: flex;
+  width: 80%;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+  color: white;
+}
+
+.watched-items {
+  display: flex;
+  gap: 30px;
+  background-color: var(--dark-gray);
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .profile-reaction button {
-    background-color: var(--real-blue);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    margin-right: 10px;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .profile-reaction button:hover {
-    background-color: var(--light-blue);
+}
+
+.poster-container {
+  width: 160px;
+  height: 240px;
+  overflow: hidden;
+}
+
+.poster-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.movie-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.genre-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  color: black;
+}
+
+.genre-badge {
+  padding: 4px 8px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+}
+
+.genre-badge:not(:last-child) {
+  margin-right: 0.4rem;
+}
+
+.right-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.rating {
+  display: flex;
+  gap: 5px;
+}
+
+.star {
+  color: #ccc;
+  font-size: 1.5rem;
+}
+
+.star.filled {
+  color: #FFD700;
+}
+
+.review-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+.interaction-info {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+}
+
+/* 보고싶어요 스타일 */
+.wish-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.wish-items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+  background-color: var(--dark-gray);
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.wish-items .poster-container {
+  width: 200px;
+  height: 300px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+}
+.wish-items h4 {
+  color: white;
+  margin-bottom: 1rem;
+}
+.empty-list {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: 1.5rem;
+  color: white;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .watched-info {
-    display: flex;
-    flex-direction: column; 
-    gap: 20px; 
-    margin-top: 20px;
-    color: white;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .watched-items {
-    display: flex; 
-    gap: 20px; 
-    align-items: center; 
-    background-color: var(--dark-gray);
-    padding: 20px;
-    border-radius: 10px; 
-    width: 150%; 
-    margin-bottom: 10px;
-  }
-  .watched-poster {
-    flex-shrink: 0; 
-    width: 100px; 
-    height: 150px; 
-    object-fit: cover; 
-  }
-  .watched-details {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; 
-  }
-  .wish-info {
-    display: grid;
-    gap: 20px;
-    margin-top: 20px;
-    color: white;
-    justify-items: center;
-  }
-  .wish-items {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    text-align: center; 
-  }
+}

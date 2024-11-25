@@ -1,14 +1,17 @@
 <!-- UserProfileView.vue -->
 <template>
-  <!-- 조건 추가: 데이터가 로드되었을 때만 렌더링 -->
-  <ProfileInfo :profileData="userData" />
-  <div class="user-profile">
-    <ProfileReaction 
-      :activeList="activeList" 
-      :watchedMovies="watchedMovies" 
-      :wishlistMovies="wishlistMovies"
-      @switchList="updateActiveList"
-    />
+  <div class="profile-container">
+    <section>
+      <ProfileInfo :profileData="userData" />
+    </section>
+    <section class="user-profile">
+      <ProfileReaction 
+        :activeList="activeList" 
+        :watchedMovies="watchedMovies" 
+        :wishlistMovies="wishlistMovies"
+        @switchList="updateActiveList"
+      />
+    </section>
   </div>
 </template>
 
@@ -58,12 +61,14 @@ onMounted(fetchUserData);
 </script>
 
 <style scoped>
-.user-profile {
+.profile-container {
   display: flex;
+  width: 100%;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center; 
-  padding: 1rem; 
+  align-items: center;
 }
-
+.profile-container > section {
+  width: 70%;
+}
 </style>
