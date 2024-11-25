@@ -7,6 +7,12 @@ class Actor(models.Model): # 배우 DB
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50)
     profile_path = models.TextField(null=True, blank=True) # 프로필 이미지 주소
+    # 이 부분 추가
+    language = models.CharField(
+    max_length=10,
+    choices=[('ko-KR', 'Korean'), ('en-US', 'English')],
+    default='en-US'
+)
 
 
 class Director(models.Model): # 감독 DB
