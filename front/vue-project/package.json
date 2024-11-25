@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tensorflow-models/mobilenet": "^2.1.1",
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.7.7",
     "pinia": "^2.2.6",
     "pinia-plugin-persistedstate": "^4.1.3",
