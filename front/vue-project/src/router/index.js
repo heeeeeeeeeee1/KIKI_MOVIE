@@ -13,6 +13,7 @@ import UserEditView from "@/views/UserEditView.vue";
 import RouletteView from "@/views/RouletteView.vue";
 import KikiMovieView from '@/views/KikiMovieView.vue'; // 추천 메인 페이지
 import PredictActor from '@/components/PredictActor.vue'; // 닮은 배우 추천 컴포넌트
+import boxOfficeSlide from '@/components/boxOfficeSlide.vue'; // 닮은 배우 추천 컴포넌트
 
 
 const router = createRouter({
@@ -73,6 +74,12 @@ const router = createRouter({
       name: 'RouletteView',
       component: RouletteView,
     },
+    {
+      path: '/boxoffice',
+      name: 'BoxOffice',
+      component: boxOfficeSlide,
+    },
+
     // {
       //   path: '/profile',
       //   name: 'UserProfileView',

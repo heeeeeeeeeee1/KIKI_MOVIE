@@ -3,7 +3,12 @@
   <h1>추천 메인 페이지</h1>
   <main class="main-home-container">
     <div class="main-home">
-
+      <div class="box-office">
+        <RouterLink :to="{ name: 'BoxOffice' }">
+          <h2>박스오피스</h2>
+        </RouterLink>
+      </div>
+      
       <!-- PredictActor 추천 -->
       <div class="recommendation-box">
         <RouterLink :to="{ name: 'PredictActor' }">
