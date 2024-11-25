@@ -156,6 +156,39 @@ export const useMovieStore = defineStore("movieStore", () => {
     });
   };
 
+  const updateReview = function (reviewPk, data) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "put",
+      url: `${API_URL}/movies/reviews/${reviewPk}/`,
+      data: data,
+      headers: { Authorization: `Token ${token}` }
+    })
+    .then((res) => {
+      console.log("리뷰 수정 성공:", res.data);
+      return res.data;
+    })
+    .catch((err) => {
+      console.error("리뷰 수정 실패:", err.response?.data || err.message);
+      throw err;
+    });
+  };
+  
+  const deleteReview = function (reviewPk) {
+    if (!token) {
+      return Promise.reject("로그인이 필요합니다.");
+    }
+  
+    return axios({
+      method: "delete",
+      url: `${API_URL}/movies/reviews/${reviewPk}/`,
+      headers: { Authorization: `Token ${token}` }
+    });
+  };
+
   // 댓글 생성(로그인O)
   const createComment = function (reviewPk, content) {
     if (!token) {
@@ -180,6 +213,8 @@ export const useMovieStore = defineStore("movieStore", () => {
     fetchMovieReviews,
     toggleLikeReview,
     getSingleReview,
+    updateReview,
+    deleteReview,
     createReview,
     createComment,
     toggleWishlist,

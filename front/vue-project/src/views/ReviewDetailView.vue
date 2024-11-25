@@ -9,10 +9,31 @@
             <span class="date">{{ formatDate(singleReview.created_at) }}</span>
           </div>
           <div class="review-actions" v-if="isAuthor">
-            <button @click="deleteReview" class="delete-btn">삭제</button>
+            <button @click="openEditModal" class="edit-btn">수정</button>
+            <button @click="confirmDelete" class="delete-btn">삭제</button>
           </div>
         </div>
-
+        <!-- 리뷰 수정 모달 -->
+        <div v-if="showEditModal" class="modal">
+          <div class="modal-content">
+            <h3>리뷰 수정</h3>
+            <div class="edit-form">
+              <div class="score-input">
+                <label>평점</label>
+                <input type="number" v-model="editForm.score" min="0" max="5" step="0.5" />
+              </div>
+              <textarea
+                v-model="editForm.content"
+                class="content-input"
+                placeholder="리뷰 내용을 입력하세요"
+              ></textarea>
+              <div class="modal-actions">
+                <button @click="submitEdit" class="submit-btn">수정</button>
+                <button @click="closeEditModal" class="cancel-btn">취소</button>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 리뷰 본문 -->
         <div class="review-main">
           <div class="review-text">
@@ -76,12 +97,15 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useMovieStore } from "@/stores/movieStore.js";
 import { storeToRefs } from 'pinia';
+import { useCounterStore } from '@/stores/counter';
 
 const route = useRoute();
+const router = useRouter();
 const store = useMovieStore();
+const counterStore = useCounterStore();
 
 const singleReview = computed(() => store.singleReview);
 const isLiked = computed(() => singleReview.value?.liked || false);
@@ -95,9 +119,50 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString();
 };
 
-const isAuthor = computed(() => {
-  return false; // 현재 로그인한 사용자와 비교 로직 필요
+const showEditModal = ref(false);
+const editForm = ref({
+  content: '',
+  score: 0
 });
+
+const isAuthor = computed(() => {
+  return singleReview.value?.user === counterStore.username;
+});
+
+const openEditModal = () => {
+  editForm.value = {
+    content: singleReview.value.content,
+    score: singleReview.value.score
+  };
+  showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+};
+
+const submitEdit = async () => {
+  try {
+    await store.updateReview(route.params.reviewPk, editForm.value);
+    await store.getSingleReview(route.params.reviewPk);
+    closeEditModal();
+  } catch (error) {
+    console.error('리뷰 수정 실패:', error);
+    alert('리뷰 수정 중 오류가 발생했습니다.');
+  }
+};
+
+const confirmDelete = async () => {
+  if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+  
+  try {
+    await store.deleteReview(route.params.reviewPk);
+    router.push(`/movies/${singleReview.value.movie.id}`);
+  } catch (error) {
+    console.error('리뷰 삭제 실패:', error);
+    alert('리뷰 삭제 중 오류가 발생했습니다.');
+  }
+};
 
 const isCommentAuthor = (comment) => {
   return false; // 현재 로그인한 사용자와 비교 로직 필요
@@ -329,5 +394,57 @@ onMounted(() => {
   width: 100%;
   min-height: 100px;
   margin: 1rem 0;
+}
+.edit-btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.score-input {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.content-input {
+  width: 100%;
+  min-height: 150px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.submit-btn {
+  background: #4CAF50;
+  color: white;
+}
+
+.cancel-btn {
+  background: #f44336;
+  color: white;
+}
+
+.submit-btn, .cancel-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>
