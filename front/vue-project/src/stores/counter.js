@@ -161,6 +161,35 @@ const fetchUserProfile = async () => {
   }
 };
 
+const deleteAccount = async () => {
+  try {
+    await axios({
+      method: 'delete',
+      url: `${API_URL}/dj-rest-auth/user/`,  // URL 수정
+      headers: {
+        Authorization: `Token ${token.value}`
+      }
+    });
+    
+    // 탈퇴 성공 후 상태 초기화
+    token.value = null;
+    username.value = '';
+    profileData.value = {
+      username: '',
+      email: '',
+      gender: '',
+      birth_date: '',
+      introduce: '',
+    };
+    watchedReviews.value = [];
+    wishlistMovies.value = [];
+    
+    return true;
+  } catch (error) {
+    console.error('회원 탈퇴 실패:', error);
+    throw error;
+  }
+};
 
   // 사용자 프로필 정보 수정
   const updateUserInfo = (updatedData) => {
@@ -215,5 +244,6 @@ const fetchUserProfile = async () => {
     wishlistMovies,
     fetchUserProfile,
     updateUserInfo,
+    deleteAccount,
   }
 }, { persist: true })

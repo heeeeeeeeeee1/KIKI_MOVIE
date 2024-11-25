@@ -16,21 +16,51 @@
         </div>
         <!-- 리뷰 수정 모달 -->
         <div v-if="showEditModal" class="modal">
-          <div class="modal-content">
-            <h3>리뷰 수정</h3>
+          <div class="modal-content dark">
+            <h3 class="modal-title">리뷰 수정하기</h3>
+            <p class="modal-subtitle">{{ singleReview.movie.title }}</p>
             <div class="edit-form">
-              <div class="score-input">
-                <label>평점</label>
-                <input type="number" v-model="editForm.score" min="1" max="5" step="1" />
+              <div class="form-group">
+                <label class="form-label">평점</label>
+                <div class="score-input">
+                  <button 
+                    @click="decreaseScore" 
+                    class="score-btn"
+                    :disabled="editForm.score <= 1"
+                  >
+                    -
+                  </button>
+                  <div class="star-rating">
+                    <span
+                      v-for="n in 5"
+                      :key="n"
+                      class="star"
+                      :class="{ 'filled': n <= editForm.score }"
+                      @click="editForm.score = n"
+                    >
+                      ★
+                    </span>
+                  </div>
+                  <button 
+                    @click="increaseScore" 
+                    class="score-btn"
+                    :disabled="editForm.score >= 5"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-              <textarea
-                v-model="editForm.content"
-                class="content-input"
-                placeholder="리뷰 내용을 입력하세요"
-              ></textarea>
+              <div class="form-group">
+                <label class="form-label">리뷰 내용</label>
+                <textarea
+                  v-model="editForm.content"
+                  class="content-input"
+                  placeholder="영화에 대한 감상을 자유롭게 작성해주세요"
+                ></textarea>
+              </div>
               <div class="modal-actions">
-                <button @click="submitEdit" class="submit-btn">수정</button>
-                <button @click="closeEditModal" class="cancel-btn">취소</button>
+                <button @click="closeEditModal" class="modal-btn cancel-btn">취소</button>
+                <button @click="submitEdit" class="modal-btn submit-btn">수정</button>
               </div>
             </div>
           </div>
@@ -38,14 +68,37 @@
         <!-- 리뷰 본문 -->
         <div class="review-main">
           <div class="review-text">
-            <router-link 
-              :to="{ name: 'MovieDetailView', params: { moviePk: singleReview.movie.id }}" 
-              class="movie-title-link"
-            >
-              <div class="movie-title">{{ singleReview.movie.title }}</div>
-            </router-link>
-            <div class="score">평점: {{ singleReview.score }}점</div>
-            <div class="genres">장르: {{ singleReview.movie_genres.join(', ') }}</div>
+            <div class="title-section">
+              <router-link 
+                :to="{ name: 'MovieDetailView', params: { moviePk: singleReview.movie.id }}" 
+                class="movie-title-link"
+              >
+                <div class="movie-title">{{ singleReview.movie.title }}</div>
+              </router-link>
+              <div class="genre-badges">
+                <span
+                  v-for="genre in singleReview.movie_genres"
+                  :key="genre"
+                  class="genre-badge"
+                  :style="{ backgroundColor: getGenreColor(genre) }"
+                >
+                  {{ genre }}
+                </span>
+              </div>
+            </div>
+            <div class="score">
+              <span class="star-rating">
+                <span
+                  v-for="n in 5"
+                  :key="n"
+                  class="star"
+                  :class="{ 'filled': n <= singleReview.score }"
+                >
+                  ★
+                </span>
+              </span>
+              <span class="score-text">({{ singleReview.score }}점)</span>
+            </div>
             <div class="content">{{ singleReview.content }}</div>
           </div>
           <router-link 
@@ -72,18 +125,26 @@
           </button>
         </div>
 
+        <!-- 댓글 작성 모달 -->
         <div v-if="showCommentForm" class="modal">
-          <div class="modal-content">
-            <h3>댓글 작성</h3>
-            <textarea
-              v-model="newComment"
-              placeholder="댓글을 입력하세요"
-              class="comment-input"
-            ></textarea>
-            <button @click="submitComment">등록</button>
-            <button @click="toggleCommentForm">취소</button>
+          <div class="modal-content dark">
+            <h3 class="modal-title">댓글 작성</h3>
+            <p class="modal-subtitle">{{ singleReview.movie.title }}에 대한 리뷰</p>
+            <div class="form-group">
+              <label class="form-label">댓글 내용</label>
+              <textarea
+                v-model="newComment"
+                placeholder="댓글을 자유롭게 작성해주세요"
+                class="comment-input"
+              ></textarea>
+            </div>
+            <div class="modal-actions">
+              <button @click="toggleCommentForm" class="modal-btn cancel-btn">취소</button>
+              <button @click="submitComment" class="modal-btn submit-btn">등록</button>
+            </div>
           </div>
         </div>
+
         <!-- 댓글 섹션 -->
         <div class="comments-section">
           <div v-if="singleReview.comments.length === 0" class="no-comments">
@@ -102,18 +163,23 @@
             </div>
           </div>
         </div>
+
         <!-- 댓글 수정 모달 -->
         <div v-if="showEditCommentModal" class="modal">
-          <div class="modal-content">
-            <h3>댓글 수정</h3>
-            <textarea
-              v-model="editCommentForm.content"
-              class="comment-input"
-              placeholder="댓글 내용을 입력하세요"
-            ></textarea>
+          <div class="modal-content dark">
+            <h3 class="modal-title">댓글 수정</h3>
+            <p class="modal-subtitle">{{ singleReview.movie.title }}에 대한 리뷰</p>
+            <div class="form-group">
+              <label class="form-label">댓글 내용</label>
+              <textarea
+                v-model="editCommentForm.content"
+                class="comment-input"
+                placeholder="댓글 내용을 입력하세요"
+              ></textarea>
+            </div>
             <div class="modal-actions">
-              <button @click="submitCommentEdit" class="submit-btn">수정</button>
-              <button @click="closeEditCommentModal" class="cancel-btn">취소</button>
+              <button @click="closeEditCommentModal" class="modal-btn cancel-btn">취소</button>
+              <button @click="submitCommentEdit" class="modal-btn submit-btn">수정</button>
             </div>
           </div>
         </div>
@@ -149,6 +215,26 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString();
 };
 
+const getGenreColor = (genre) => {
+  const genreColors = {
+    '액션': '#FF6B6B',
+    '모험': '#4ECDC4',
+    '애니메이션': '#45B7D1',
+    '코미디': '#96CEB4',
+    '범죄': '#D4A5A5',
+    '다큐멘터리': '#9FA8DA',
+    '드라마': '#FFD93D',
+    '가족': '#98DBC6',
+    '판타지': '#E4C1F9',
+    '역사': '#A8E6CF',
+    'SF': '#3F72AF',
+    '스릴러': '#364F6B',
+    '전쟁': '#8785A2',
+    '서부': '#DCC7AA'
+  };
+  return genreColors[genre] || '#6c757d';
+};
+
 const showEditModal = ref(false);
 const editForm = ref({
   content: '',
@@ -175,6 +261,18 @@ const openEditModal = () => {
 
 const closeEditModal = () => {
   showEditModal.value = false;
+};
+
+const decreaseScore = () => {
+  if (editForm.value.score > 1) {
+    editForm.value.score--;
+  }
+};
+
+const increaseScore = () => {
+  if (editForm.value.score < 5) {
+    editForm.value.score++;
+  }
 };
 
 const submitEdit = async () => {
@@ -210,7 +308,7 @@ const handleLike = async () => {
   
   try {
     await store.toggleLikeReview(reviewPk);
-    await store.getSingleReview(reviewPk); // 리뷰 데이터 새로 불러오기
+    await store.getSingleReview(reviewPk);
   } catch (err) {
     console.error("좋아요 토글 실패:", err);
   }
@@ -228,9 +326,9 @@ const submitComment = async () => {
 
   try {
     await store.createComment(route.params.reviewPk, newComment.value);
-    await store.getSingleReview(route.params.reviewPk); // 댓글 작성 후 리뷰 데이터 새로고침
-    newComment.value = ''; // 입력 필드 초기화
-    toggleCommentForm(); // 모달 닫기
+    await store.getSingleReview(route.params.reviewPk);
+    newComment.value = '';
+    toggleCommentForm();
     console.log("댓글 작성 완료");
   } catch (error) {
     console.error("댓글 작성 실패:", error.response?.data || error.message);
@@ -307,7 +405,8 @@ onMounted(() => {
 .review-container {
   width: 900px;
   max-width: 90%;
-  background: white;
+  background: black;
+  color: white;
   border-radius: 8px;
   padding: 2rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -344,14 +443,64 @@ onMounted(() => {
   flex: 1;
 }
 
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
 .movie-title {
   font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
-.score, .genres {
+.genre-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.genre-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  color: white;
+  font-weight: 500;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.genre-badge:hover {
+  transform: translateY(-2px);
+}
+
+.score {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.star-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star {
+  font-size: 1.5rem;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star.filled {
+  color: #ffd700;
+}
+
+.score-text {
   color: #666;
 }
 
@@ -410,18 +559,26 @@ onMounted(() => {
   font-weight: bold;
 }
 
-.delete-btn, .delete-comment {
+.edit-btn, .delete-btn, .edit-comment, .delete-comment {
   padding: 0.25rem 0.5rem;
   border: none;
-  background: #ff4444;
+  background: var(--real-gray);
   color: white;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.delete-comment {
-  background: transparent;
-  color: #666;
+.edit-btn, .edit-comment {
+  margin-right: 0.5rem;
+}
+
+.edit-btn:hover, .delete-btn:hover, .edit-comment:hover, .delete-comment:hover {
+  background: var(--dark-gray);
+}
+
+.edit-comment, .delete-comment {
+  font-size: 0.8rem;
 }
 
 .no-comments {
@@ -440,81 +597,131 @@ onMounted(() => {
   max-width: 800px;
   margin: 0 auto;
 }
+
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .modal-content {
-  background: white;
   padding: 2rem;
   border-radius: 8px;
   max-width: 500px;
   width: 90%;
-}
-.comment-input {
-  width: 100%;
-  min-height: 100px;
-  margin: 1rem 0;
-}
-.edit-btn {
-  padding: 0.25rem 0.5rem;
-  border: none;
-  background: #4CAF50;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 0.5rem;
+  border: 1px solid var(--dark-gray);
 }
 
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.modal-content.dark {
+  background: black;
+  color: white;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.modal-subtitle {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #ccc;
 }
 
 .score-input {
   display: flex;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
 }
 
-.content-input {
+.score-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 4px;
+  background: var(--real-gray);
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.score-btn:hover:not(:disabled) {
+  background: var(--dark-gray);
+}
+
+.score-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.content-input, .comment-input {
   width: 100%;
   min-height: 150px;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: 0.75rem;
+  border: 1px solid #333;
   border-radius: 4px;
+  background: #111;
+  color: white;
+  resize: vertical;
+}
+
+.comment-input {
+  min-height: 100px;
+}
+
+.content-input::placeholder,
+.comment-input::placeholder {
+  color: #666;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
-.submit-btn {
-  background: #4CAF50;
-  color: white;
-}
-
-.cancel-btn {
-  background: #f44336;
-  color: white;
-}
-
-.submit-btn, .cancel-btn {
-  padding: 0.5rem 1rem;
+.modal-btn {
+  padding: 0.5rem 1.5rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+  background: var(--real-gray);
+  color: white;
 }
+
+.modal-btn:hover {
+  background: var(--dark-gray);
+}
+
+.comment-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .movie-title-link {
   text-decoration: none;
   color: inherit;
@@ -532,30 +739,5 @@ onMounted(() => {
 
 .movie-poster:hover {
   transform: scale(1.05);
-}
-
-.comment-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.edit-comment {
-  padding: 0.25rem 0.5rem;
-  border: none;
-  background: #4CAF50;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.delete-comment {
-  padding: 0.25rem 0.5rem;
-  border: none;
-  background: #ff4444;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
 }
 </style>
