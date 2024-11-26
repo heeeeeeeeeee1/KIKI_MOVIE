@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ref } from "vue";
 
-const TMDB_API_KEY = "700c493de1fec79592154b7cb6361039";
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
 // 장르 저장을 위한 ref 생성
@@ -224,7 +224,7 @@ export function useTmdb() {
         params: {
           api_key: TMDB_API_KEY,
           page,
-          language: "ko-KR", // 언어를 한국어로 설정
+          language: "ko-KR",
         },
       });
 
@@ -257,24 +257,22 @@ export function useTmdb() {
   };
 }
 
-// 인기 배우 가져오기
 export const getPopularActors = async (page = 1) => {
   try {
     const response = await axios.get(`${BASE_URL}/person/popular`, {
       params: {
         api_key: TMDB_API_KEY,
         page,
-        language: "ko-KR", // 언어를 한국어로 설정
+        language: "ko-KR",
       },
     });
-    return response.data.results; // 배우 리스트 반환
+    return response.data.results;
   } catch (error) {
     console.error("Failed to fetch popular actors:", error);
     throw new Error("인기 배우 정보를 가져오는 데 실패했습니다.");
   }
 };
 
-// 특정 배우의 출연 영화 가져오기
 export const getMoviesByActor = async (actorId) => {
   // 장르 데이터가 없으면 먼저 가져오기
   if (Object.keys(genreMap.value).length === 0) {
@@ -292,24 +290,26 @@ export const getMoviesByActor = async (actorId) => {
       }
     );
 
-    // 콘솔에 응답 데이터 출력 (디버깅용)
     console.log("TMDB API 응답 데이터:", response.data.cast);
 
-    // 응답 데이터가 없는 경우 처리
     if (!response.data.cast || response.data.cast.length === 0) {
       console.error("출연 영화 정보가 없습니다.");
       return [];
     }
 
-    // 중복 제거 (영화 ID 기준)
     const uniqueMovies = response.data.cast.filter(
       (movie, index, self) => index === self.findIndex((m) => m.id === movie.id)
     );
 
+    const sortedMovies = uniqueMovies
+      .sort((a, b) => b.popularity - a.popularity)
+      .slice(0, 5);  // 상위 5개 영화만 선택
+
+    return sortedMovies;
     // 인기순으로 정렬
-    const sortedMovies = uniqueMovies.sort(
-      (a, b) => b.popularity - a.popularity
-    );
+    //const sortedMovies = uniqueMovies.sort(
+    //  (a, b) => b.popularity - a.popularity
+    //);
 
     // 성인 콘텐츠 체크와 장르 정보를 포함하여 데이터 매핑
     const moviesWithAdultCheck = sortedMovies.map((movie) => ({
