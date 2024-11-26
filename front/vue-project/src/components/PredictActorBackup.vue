@@ -1,3 +1,4 @@
+<!-- 배우이름, 닮은 확률 전체 나오는 코드 -->
 <template>
   <div class="teachable-machine">
     <h2 class="text-xl mb-4">Teachable Machine Image Model</h2>

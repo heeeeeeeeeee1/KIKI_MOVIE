@@ -1,3 +1,4 @@
+<!-- 닮은 배우 퍼센트랑 같이 전부 나옴. unMounted 되어있는지 모르겠음-->
 <template>
   <div class="teachable-machine">
     <h2 class="text-xl mb-4">Teachable Machine Image Model</h2>
