@@ -1,3 +1,4 @@
+<!-- 네이버 api 사용전 -->
 <template>
   <div class="teachable-machine">
     <h2 class="text-xl mb-4">Teachable Machine Image Model</h2>
@@ -31,12 +32,9 @@
         {{ topPrediction.className }} - 확률: {{ (topPrediction.probability * 100).toFixed(2) }}%
       </p>
       <h4 class="font-bold mt-4">출연 영화:</h4>
-      <ul v-if="movies.length > 0">
-        <li v-for="movie in movies" :key="movie.id">
-          {{ movie.title }} ({{ new Date(movie.release_date).getFullYear() }})
-        </li>
+      <ul>
+        <li v-for="movie in movies" :key="movie.id">{{ movie.title }}</li>
       </ul>
-      <p v-else>출연 영화 정보를 찾을 수 없습니다.</p>
     </div>
   </div>
 </template>
@@ -147,17 +145,13 @@ const analyzeImage = async () => {
     predictions.value = results.sort((a, b) => b.probability - a.probability);
 
     if (predictions.value.length > 0) {
-      topPrediction.value = predictions.value[0];
-      console.log("닮은 배우 예측:", topPrediction.value);
-
+      topPrediction.value = predictions.value[0]; // 가장 닮은 배우 선택
       const actorId = getActorId(topPrediction.value?.className);
-      console.log("TMDB 배우 ID:", actorId);
 
       if (actorId) {
-        movies.value = await getMoviesByActor(actorId);
-        console.log("출연 영화 데이터:", movies.value);
+        movies.value = await getMoviesByActor(actorId); // TMDB API로 출연 영화 가져오기
       } else {
-        error.value = "TMDB에서 배우 정보를 찾을 수 없습니다.";
+        error.value = "해당 배우의 영화 정보를 찾을 수 없습니다.";
       }
     }
   } catch (err) {
