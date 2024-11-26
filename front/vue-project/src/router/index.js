@@ -8,9 +8,9 @@ import LogInView from "@/views/LoginView.vue";
 import UserProfileView from "@/views/UserProfileView.vue";
 import UserEditView from "@/views/UserEditView.vue";
 import RouletteView from "@/views/RouletteView.vue";
-import KikiMovieView from '@/views/KikiMovieView.vue'; // 추천 메인 페이지
-import PredictActor from '@/components/PredictActor.vue'; // 닮은 배우 추천 컴포넌트
-import boxOfficeSlide from '@/components/boxOfficeSlide.vue'; // 닮은 배우 추천 컴포넌트
+import KikiMovieView from "@/views/KikiMovieView.vue"; // 추천 메인 페이지
+import PredictActor from "@/components/PredictActor.vue"; // 닮은 배우 추천 컴포넌트
+import boxOfficeSlide from "@/components/boxOfficeSlide.vue"; // 닮은 배우 추천 컴포넌트
 
 import MovieDetailView from "@/views/MovieDetailView.vue";
 import ReviewDetailView from "@/views/ReviewDetailView.vue";
@@ -38,13 +38,13 @@ const router = createRouter({
       meta: { hideHeader: true },
     },
     {
-      path: '/profile',
-      name: 'UserProfileView',
+      path: "/profile",
+      name: "UserProfileView",
       component: UserProfileView,
     },
     {
-      path: '/profile/edit',
-      name: 'UserEditView',
+      path: "/profile/edit",
+      name: "UserEditView",
       component: UserEditView,
     },
     // movies 내 영화 상세 페이지
@@ -85,8 +85,8 @@ const router = createRouter({
       component: RouletteView,
     },
     {
-      path: '/kikimovie/boxoffice',
-      name: 'BoxOffice',
+      path: "/kikimovie/boxoffice",
+      name: "BoxOffice",
       component: boxOfficeSlide,
     },
 

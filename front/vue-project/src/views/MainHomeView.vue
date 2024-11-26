@@ -1,132 +1,200 @@
-<!--ㅋㅋ알고리즘 따로 페이지 만들기 전에는 메인에 연결해놨음 -->
+<!-- KikiMovieView -->
 <template>
   <main class="main-home-container">
     <div class="main-home">
-      <button @click="openActorModal">배우 선택하고 영화 추천 받기</button>
-      <BoxOfficeSlide />
-      <PopularReviewList />
-      <MyGenrePopular />
-      <MyAgePopular />
-
-
-      <!-- 배우 선택 모달 -->
-      <SelectActorModal
-        v-if="isActorModalVisible"
-        :is-visible="isActorModalVisible"
-        :actors="actors"
-        @close="closeActorModal"
-        @confirm="handleActorSelection"
-      />
-
-      <!-- 추천 영화 모달 -->
-      <MovieRecommendationModal
-        v-if="isMovieModalVisible"
-        :is-visible="isMovieModalVisible"
-        :movies="movies"
-        @close="closeMovieModal"
-      />
+      <!-- 애니메이션 토글 버튼 -->
+      <button class="action-button" @click="toggleAnimation">
+        {{ isAnimationPaused ? "시작" : "멈춤" }}
+      </button>
+      <div class="circle-container" :class="{ paused: isAnimationPaused }">
+        <!-- 박스들 -->
+        <div class="recommendation-box actor_box" title="actor">
+          <RouterLink :to="{ name: 'PredictActor' }">
+            <img
+              src="https://img2.quasarzone.com/editor/2023/04/15/6531cd90af5bc0c06d4fd958214fdd7a.png"
+              alt=""
+            />
+          </RouterLink>
+        </div>
+        <div class="recommendation-box let_box" title="dora">
+          <RouterLink :to="{ name: 'RouletteView' }">
+            <img
+              src="https://img2.quasarzone.com/editor/2023/04/15/6531cd90af5bc0c06d4fd958214fdd7a.png"
+              alt=""
+            />
+          </RouterLink>
+        </div>
+        <div class="recommendation-box office_box" title="office">
+          <RouterLink :to="{ name: 'BoxOffice' }">
+            <img
+              src="https://img2.quasarzone.com/editor/2023/04/15/6531cd90af5bc0c06d4fd958214fdd7a.png"
+              alt=""
+            />
+          </RouterLink>
+        </div>
+      </div>
     </div>
   </main>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import BoxOfficeSlide from "@/components/boxOfficeSlide.vue";
-import PopularReviewList from "@/components/popularReviewList.vue";
-import MyGenrePopular from "@/components/myGenrePopular.vue";
-import MyAgePopular from "@/components/myAgePopular.vue";
-import SelectActorModal from "@/components/SelectActorModal.vue";
-import MovieRecommendationModal from "@/components/MovieRecommendationModal.vue";
-import { getPopularActors, getMoviesByActor } from "@/api/tmdb";
+<script>
+import { defineComponent } from "vue";
 
-// 상태 관리
-const isActorModalVisible = ref(false); // 배우 선택 모달 표시 여부
-const isMovieModalVisible = ref(false); // 추천 영화 모달 표시 여부
-const actors = ref([]); // 배우 리스트
-const movies = ref([]); // 추천 영화 리스트
-
-// 배우 선택 모달 열기
-const openActorModal = async () => {
-  try {
-    const response = await getPopularActors();
-    actors.value = response.sort(() => Math.random() - 0.5).slice(0, 10); // 랜덤 배우 10명
-    isActorModalVisible.value = true; // 모달 표시
-  } catch (error) {
-    console.error("배우 데이터를 불러오는 중 오류 발생:", error);
-  }
-};
-
-// 배우 선택 모달 닫기
-const closeActorModal = () => {
-  isActorModalVisible.value = false;
-};
-
-// 추천 영화 모달 닫기
-const closeMovieModal = () => {
-  isMovieModalVisible.value = false;
-};
-
-// 배우 선택 처리
-const handleActorSelection = async (selectedActors) => {
-  try {
-    isActorModalVisible.value = false; // 배우 선택 모달 닫기
-    isMovieModalVisible.value = true; // 추천 영화 모달 열기
-
-    const movieCounts = {}; // 영화 중복 횟수 저장
-
-    // 선택된 배우 데이터를 순회
-    for (const actor of selectedActors) {
-      const actorMovies = await getMoviesByActor(actor.id);
-
-      // 유효성 검사: 영화 데이터가 비어있거나 없는 경우 처리
-      if (!actorMovies || actorMovies.length === 0) {
-        console.warn(`배우 ${actor.name}의 영화 데이터를 찾을 수 없습니다.`);
-        continue;
-      }
-
-      actorMovies.forEach((movie) => {
-        movieCounts[movie.id] = (movieCounts[movie.id] || 0) + 1;
-      });
-    }
-
-    // 중복 횟수로 정렬 후 상위 3개 영화 선택
-    movies.value = Object.entries(movieCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([id]) => {
-        return selectedActors.flatMap((actor) => actor.movies || []).find((m) => m.id === Number(id));
-      })
-      .filter(Boolean); // 유효하지 않은 데이터 제거
-  } catch (error) {
-    console.error("추천 영화 생성 중 오류 발생:", error);
-  }
-};
-
+export default defineComponent({
+  name: "MainHomeView",
+  data() {
+    return {
+      isActorModalVisible: false,
+      isMovieModalVisible: false,
+      actors: [], // 배우 목록 데이터
+      movies: [], // 추천 영화 데이터
+      isAnimationPaused: false,
+    };
+  },
+  methods: {
+    toggleAnimation() {
+      this.isAnimationPaused = !this.isAnimationPaused;
+    },
+    openActorModal() {
+      this.isActorModalVisible = true;
+    },
+    closeActorModal() {
+      this.isActorModalVisible = false;
+    },
+    closeMovieModal() {
+      this.isMovieModalVisible = false;
+    },
+    handleActorSelection(selectedActor) {
+      console.log("선택된 배우:", selectedActor);
+      this.isActorModalVisible = false;
+      this.isMovieModalVisible = true; // 영화 추천 모달 표시
+    },
+  },
+});
 </script>
 
 <style scoped>
+/* 메인 컨테이너 스타일 */
 .main-home-container {
+  padding: 20px;
+  color: white;
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 100vh;
 }
 
-.main-home {
-  width: 70%;
-  overflow: hidden;
+.circle-container {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  animation: rotate-z 6s infinite alternate;
 }
 
-button {
-  padding: 10px 20px;
-  margin-top: 20px;
-  font-size: 16px;
-  background-color: #007bff;
+.circle-container.paused {
+  animation-play-state: paused; /* 멈춘 상태 */
+}
+/* 박스 형태 스타일 */
+.recommendation-box {
+  background: #444;
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: absolute;
+  animation: rotate-z 6s infinite alternate;
 }
 
-button:hover {
-  background-color: #0056b3;
+@keyframes rotate-z {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  20% {
+    transform: rotateZ(360deg);
+  }
+  50% {
+    transform: rotateZ(-90deg);
+  }
+  70% {
+    transform: rotateZ(270deg);
+  }
+  100% {
+    transform: rotateZ(0deg);
+  }
+}
+.recommendation-box:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+.actor_box {
+  top: -20%;
+  left: 30%;
+}
+
+.let_box {
+  top: 50%;
+  right: -20%;
+}
+
+.office_box {
+  bottom: 5%;
+  left: -20%;
+}
+
+.recommendation-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1rem;
+}
+/* 버튼 스타일 */
+.main-home {
+  position: relative;
+}
+
+.action-button {
+  background-color: green;
+  color: white;
+  font-size: bold;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  position: absolute;
+  top: 270px;
+  left: 270px;
+  z-index: 999;
+}
+
+.action-button:hover {
+  background-color: red;
+}
+
+.action-button {
+  position: absolute;
+  top: 270px;
+  left: 270px;
+  z-index: 999;
+}
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .main-home-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .recommendation-box {
+    width: 100%;
+    max-width: 400px;
+  }
 }
 </style>
