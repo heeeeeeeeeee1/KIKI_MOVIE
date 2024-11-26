@@ -1,9 +1,13 @@
 <template>
   <main class="login-main">
-    <RouterLink :to="{ name: 'MainHomeView' }"> 로고 </RouterLink>
+    <RouterLink :to="{ name: 'MainHomeView' }" class="logo-accounts">
+      <div class="img-container">
+        <img src="@/assets/kiki_logo.png" alt="키키무비 로고 이미지" />
+      </div>
+    </RouterLink>
     <section>
       <div class="login-container">
-        <h1>LogIn</h1>
+        <h2>LogIn</h2>
         <form @submit.prevent="logIn">
           <div class="form__input">
             <label for="username">유저 ID</label>
@@ -26,13 +30,13 @@
           <input type="submit" value="로그인" />
         </form>
         <div class="password_signup">
-          <a href="" class="find-password_btn">비밀번호를 잃어버리셨나요?</a>
+          <!-- <a href="" class="find-password_btn">비밀번호를 잃어버리셨나요?</a> -->
           <div>
             <span class="signup_label">계정이 없으신가요?</span>
             <router-link to="/signup">회원가입</router-link>
           </div>
         </div>
-        <div class="divider">
+        <!-- <div class="divider">
           <span>OR</span>
         </div>
         <div class="social-login">
@@ -42,7 +46,7 @@
           <div class="social__kakao">
             <img src="@/assets/kakao.png" alt="kakao login" /><br />
           </div>
-        </div>
+        </div> -->
       </div>
     </section>
   </main>
@@ -68,8 +72,13 @@ const logIn = function () {
 
 <style scoped>
 @media (max-width: 820px) {
-  .password_signup {
-    flex-direction: column;
+  .logo-accounts {
+    display: none;
+  }
+  .login-container {
+    width: 100%;
+    margin: 1rem 1rem;
+    padding: 3rem 1.5rem;
   }
   .password_signup {
     flex-direction: column;
@@ -80,8 +89,23 @@ const logIn = function () {
   }
 }
 @media (min-width: 821px) {
+  .img-container {
+    width: 4rem;
+    height: 4rem;
+  }
+  .img-container img {
+    width: 100%;
+    height: 100%;
+  }
+  .logo-accounts {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+  }
   .login-container {
     min-width: 500px;
+    margin: 4rem 1rem;
+    padding: 3rem 1.5rem;
   }
 }
 .login-main {
@@ -100,10 +124,8 @@ const logIn = function () {
   align-items: center;
   background-color: #02071c;
   border-radius: 2rem;
-  margin: 4rem 1rem;
-  padding: 3rem 1.5rem;
 }
-.login-container > h1 {
+.login-container > h2 {
   margin-top: 0;
   margin-bottom: 2rem;
 }
@@ -128,11 +150,12 @@ const logIn = function () {
 input[type="submit"] {
   width: 100%;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   border: none;
   background-color: #0583f2;
   border-radius: 0.3rem;
   margin: 1rem 0;
+  padding: 0.5rem 0;
 }
 
 .password_signup {
@@ -140,6 +163,12 @@ input[type="submit"] {
   display: flex;
   justify-content: space-between;
   margin: 1rem 0 1.5rem;
+}
+
+.password_signup > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .password_signup a {
