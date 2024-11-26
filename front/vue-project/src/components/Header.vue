@@ -7,7 +7,7 @@
           class="nav-text logo logo-accounts"
         >
           <div class="img-container">
-            <img src="@/assets/kiki_logo.png" alt="키키무비 로고 이미지" />
+            <img src="@/assets/logo_white.png" alt="키키무비 로고 이미지" />
           </div>
           <span>KIKI</span>
         </RouterLink>
