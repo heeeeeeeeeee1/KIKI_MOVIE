@@ -2,7 +2,11 @@
   <div class="signup-main">
     <section class="signup-left">
       <div>
-        <RouterLink :to="{ name: 'MainHomeView' }"> 로고 </RouterLink>
+        <RouterLink :to="{ name: 'MainHomeView' }" class="logo-accounts">
+          <div class="img-container">
+            <img src="@/assets/kiki_logo.png" alt="키키무비 로고 이미지">
+          </div>
+        </RouterLink>
         <h1>
           당신의 데이터를 기반으로<br />
           개인 맞춤형 영화 추천을<br />
@@ -12,7 +16,7 @@
     </section>
     <section class="signup-right">
       <div class="right__form">
-        <h1>Sign Up</h1>
+        <h2>Sign Up</h2>
         <form @submit.prevent="signUp">
           <div class="form__input">
             <label for="email">이메일</label>
@@ -65,7 +69,7 @@
           </div>
           <input type="submit" value="회원가입" />
         </form>
-        <div class="divider">
+        <!-- <div class="divider">
           <span>OR</span>
         </div>
         <div class="social-login">
@@ -75,7 +79,7 @@
           <div class="social__kakao">
             <img src="@/assets/kakao.png" alt="kakao login" /><br />
           </div>
-        </div>
+        </div> -->
       </div>
     </section>
   </div>

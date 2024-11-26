@@ -2,8 +2,14 @@
   <header>
     <div class="header-container">
       <nav class="left-menu">
-        <RouterLink :to="{ name: 'MainHomeView' }" class="nav-text logo">
-          로고
+        <RouterLink
+          :to="{ name: 'MainHomeView' }"
+          class="nav-text logo logo-accounts"
+        >
+          <div class="img-container">
+            <img src="@/assets/kiki_logo.png" alt="키키무비 로고 이미지" />
+          </div>
+          <span>KIKI</span>
         </RouterLink>
       </nav>
       <nav class="right-users">
