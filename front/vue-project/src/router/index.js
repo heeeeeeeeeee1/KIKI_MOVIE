@@ -80,12 +80,12 @@ const router = createRouter({
       component: PredictActor,
     },
     {
-      path: "/roulette",
+      path: "/kikimovie/roulette",
       name: "RouletteView",
       component: RouletteView,
     },
     {
-      path: '/boxoffice',
+      path: '/kikimovie/boxoffice',
       name: 'BoxOffice',
       component: boxOfficeSlide,
     },

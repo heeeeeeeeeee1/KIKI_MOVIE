@@ -3,15 +3,6 @@
   <h1>추천 메인 페이지</h1>
   <main class="main-home-container">
     <div class="main-home">
-<<<<<<< HEAD
-=======
-      <div class="box-office">
-        <RouterLink :to="{ name: 'BoxOffice' }">
-          <h2>박스오피스</h2>
-        </RouterLink>
-      </div>
-      
->>>>>>> f3084a7b106259ae6fc233c5b254f85795d5de2a
       <!-- PredictActor 추천 -->
       <div class="recommendation-box">
         <RouterLink :to="{ name: 'PredictActor' }">
@@ -22,12 +13,24 @@
         </RouterLink>
       </div>
 
-      <!-- 추가 추천 알고리즘 1 모달로 가능한가...-->
+      <!-- 룰렛 -->
       <div class="recommendation-box">
-        <h2>추천 알고리즘 2</h2>
-        <button @click="openActorModal">배우 선택하고 영화 추천 받기</button>
-        <p>이 섹션에는 추천 알고리즘 1의 내용이 표시됩니다.</p>
-        <button class="action-button">자세히 보기</button>
+        <RouterLink :to="{ name: 'RouletteView' }">
+          <img
+            src="https://img2.quasarzone.com/editor/2023/04/15/6531cd90af5bc0c06d4fd958214fdd7a.png"
+            alt=""
+          />
+        </RouterLink>
+      </div>
+
+      <!-- 박스오피스 -->
+      <div class="recommendation-box">
+        <RouterLink :to="{ name: 'BoxOffice' }">
+          <img
+            src="https://img2.quasarzone.com/editor/2023/04/15/6531cd90af5bc0c06d4fd958214fdd7a.png"
+            alt=""
+          />
+        </RouterLink>
       </div>
     </div>
   </main>
