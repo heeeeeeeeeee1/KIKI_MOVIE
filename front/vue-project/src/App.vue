@@ -2,7 +2,7 @@
   <Header v-if="!route.meta.hideHeader" />
   <main :class="{ 'no-padding': route.meta.hideHeader }">
     <RouterView />
-    <ActorSearch />
+    <!-- <ActorSearch /> -->
   </main>
   <Footer />
 </template>
@@ -12,7 +12,7 @@ import { useRoute } from "vue-router";
 import { RouterView } from "vue-router";
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
-import ActorSearch from "@/Views/ActorSearch.vue";
+// import ActorSearch from "@/Views/ActorSearch.vue";
 
 const route = useRoute();
 </script>
