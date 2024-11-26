@@ -1,43 +1,49 @@
 <template>
-  <div class="teachable-machine">
-    <h2 class="text-xl mb-4">Teachable Machine Image Model</h2>
-
-    <div v-if="error" class="mb-4 p-4 bg-red-100 text-red-700 rounded">
-      {{ error }}
-    </div>
-
-    <div class="mb-4">
-      <input
-        type="file"
-        @change="handleImageUpload"
-        accept="image/*"
-        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-      />
-    </div>
-
-    <div v-if="imageUrl" class="mb-4">
-      <img
-        ref="imagePreview"
-        :src="imageUrl"
-        alt="uploaded image"
-        class="max-w-xs rounded shadow"
-        @load="analyzeImage"
-      />
-    </div>
-
-    <div v-if="topPrediction" class="mt-4 p-4 bg-gray-50 rounded">
-      <h3 class="font-bold mb-2">닮은 배우:</h3>
-      <p class="text-lg font-semibold">
-        {{ topPrediction.className }} - 확률:
-        {{ (topPrediction.probability * 100).toFixed(2) }}%
-      </p>
-      <h4 class="font-bold mt-4">출연 영화:</h4>
-      <ul v-if="movies.length > 0">
-        <li v-for="movie in movies" :key="movie.id">
-          {{ movie.title }} ({{ new Date(movie.release_date).getFullYear() }})
-        </li>
-      </ul>
-      <p v-else>출연 영화 정보를 찾을 수 없습니다.</p>
+  <div class="page-container">
+    <div class="teachable-machine">
+      <section class="teachable-title">
+        <h2 class="text-xl mb-4">나의 닮은꼴 배우 찾기</h2>
+        <div v-if="error" class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+          {{ error }}
+        </div>
+      </section>
+      <div class="teachable-content">
+        <section class="upload-img-container">
+          <h3 class="mb-3">얼굴 사진을 올려주세요</h3>
+          <input type="file" @change="handleImageUpload" accept="image/*"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+          <div v-if="imageUrl" class="img-container">
+            <img ref="imagePreview" :src="imageUrl" alt="uploaded image" @load="analyzeImage" />
+          </div>
+          <div v-else class="none-img-container">
+            이미지를 업로드해주세요.
+          </div>
+        </section>
+        <section v-if="topPrediction" class="moveto-container">
+          <div class="container">
+            <div class="arrow"></div>
+          </div>
+        </section>
+        <section class="result-container">
+          <h3 class="mb-3">당신이 닮은 배우는?</h3>
+          <div v-if="topPrediction" class="done-predict">
+            <p class="actor-predict">
+              {{ topPrediction.className }} -
+              {{ (topPrediction.probability * 100).toFixed(2) }}%
+            </p>
+            <h4 class="font-bold mt-4 movie-info-title">출연 영화</h4>
+            <ul v-if="movies.length > 0">
+              <li v-for="movie in movies" :key="movie.id">
+                {{ movie.title }} ({{ new Date(movie.release_date).getFullYear() }})
+              </li>
+            </ul>
+            <p v-else class="mt-5">출연 영화 정보를 찾을 수 없습니다.</p>
+          </div>
+          <div v-else class="yet-predict">
+            <p>이미지를 업로드하고 분석을 시작해주세요.</p>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -235,8 +241,145 @@ const loadScript = (src) => {
 };
 </script>
 
-<style>
-.teachable-machine {
+<style scoped>
+.page-container {
   color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4rem;
+}
+
+.teachable-machine {
+  width: 80%;
+  margin-top: 2rem;
+}
+
+.teachable-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.teachable-content {
+  width: 100%;
+  min-height: 700px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.upload-img-container {
+  width: 40%;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--dark-gray);
+  border-radius: 10px;
+  padding: 2rem 2rem;
+}
+
+.upload-img-container>input {
+  margin-bottom: 2rem;
+}
+
+.img-container {
+  width: 100%;
+  min-height: 500px;
+}
+
+.img-container img {
+  width: 100%;
+}
+
+.none-img-container {
+  width: 500px;
+  min-height: 500px;
+  text-align: center;
+  padding: 250px 0;
+}
+
+.moveto-container {
+  height: 750px;
+  display: flex;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 300px;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.arrow {
+  font-size: 24px;
+  animation: slideArrow 2s infinite;
+  position: absolute;
+  opacity: 0;
+}
+
+@keyframes slideArrow {
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+
+  20% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+}
+
+/* CSS 화살표 대신 실제 화살표 문자 사용 */
+.arrow::after {
+  content: "→";
+}
+
+.result-container {
+  width: 40%;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--dark-gray);
+  border-radius: 10px;
+  padding: 2rem 2rem;
+}
+
+.result-container>h3 {
+  text-align: center;
+}
+.movie-info-title {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.result-container>.done-predict,
+.result-container>.yet-predict {
+  min-height: 400px;
+}
+.actor-predict {
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 3rem 0;
+  text-decoration: underline;
+}
+.result-container>.yet-predict {
+  padding: 300px 0;
 }
 </style>
