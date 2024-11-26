@@ -25,14 +25,12 @@
       />
     </div>
 
-    <div v-if="predictions.length > 0" class="mt-4 p-4 bg-gray-50 rounded">
-      <h3 class="font-bold mb-2">닮은 배우 목록:</h3>
-      <ul>
-        <li v-for="(prediction, index) in predictions" :key="index">
-          <p class="text-lg font-semibold">{{ prediction.className }}</p>
-          <p class="text-sm">확률: {{ (prediction.probability * 100).toFixed(2) }}%</p>
-        </li>
-      </ul>
+    <div v-if="topPrediction" class="mt-4 p-4 bg-gray-50 rounded">
+      <h3 class="font-bold mb-2">닮은 배우:</h3>
+      <p class="text-lg font-semibold">
+        {{ topPrediction.className }} - 확률:
+        {{ (topPrediction.probability * 100).toFixed(2) }}%
+      </p>
       <h4 class="font-bold mt-4">출연 영화:</h4>
       <ul v-if="movies.length > 0">
         <li v-for="movie in movies" :key="movie.id">
@@ -53,11 +51,13 @@ const error = ref(null);
 const imageUrl = ref(null);
 const imagePreview = ref(null);
 const predictions = ref([]);
+const topPrediction = ref(null);
 const movies = ref([]);
 
 let model = null;
 const modelPath = ref("/models/my-model/");
 
+// 이미지 리사이즈 함수
 const resizeImage = (file, width, height) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -108,6 +108,7 @@ const resizeImage = (file, width, height) => {
   });
 };
 
+// 이미지 업로드 처리
 const handleImageUpload = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -134,6 +135,7 @@ const handleImageUpload = async (event) => {
   }
 };
 
+// 이미지 분석
 const analyzeImage = async () => {
   if (!model || !imagePreview.value) {
     error.value = "모델이 준비되지 않았습니다.";
@@ -144,7 +146,6 @@ const analyzeImage = async () => {
     console.log("이미지 분석 시작");
     const results = await model.predict(imagePreview.value);
     predictions.value = results.sort((a, b) => b.probability - a.probability);
-    console.log("이미지 분석 완료:", predictions.value);
 
     if (predictions.value.length > 0) {
       topPrediction.value = predictions.value[0];
@@ -156,11 +157,6 @@ const analyzeImage = async () => {
       if (actorId) {
         movies.value = await getMoviesByActor(actorId);
         console.log("출연 영화 데이터:", movies.value);
-//      const actorId = getActorId(predictions.value[0]?.className);
-//
-//      if (actorId) {
-//        movies.value = await getMoviesByActor(actorId);
-//        console.log("영화 정보 로드 완료:", movies.value);
       } else {
         error.value = "TMDB에서 배우 정보를 찾을 수 없습니다.";
       }
@@ -171,6 +167,7 @@ const analyzeImage = async () => {
   }
 };
 
+// 모델 초기화
 const initModel = async () => {
   if (!window.tmImage) {
     error.value = "Teachable Machine 라이브러리가 아직 로드되지 않았습니다.";
@@ -185,11 +182,48 @@ const initModel = async () => {
     model = await window.tmImage.load(modelURL, metadataURL);
     console.log("모델 로드 성공");
   } catch (err) {
+    model = null; // 초기화 실패 시 null 설정
     error.value = "모델을 불러오는 중 오류가 발생했습니다.";
     console.error("모델 로드 오류:", err);
   }
 };
 
+// 컴포넌트가 소멸될 때 모델 정리
+onUnmounted(() => {
+  if (model && typeof model.dispose === "function") {
+    model.dispose();
+    console.log("모델 정리 완료");
+  } else {
+    console.log("모델이 초기화되지 않았거나 이미 정리되었습니다.");
+  }
+
+  if (window.tf) {
+    try {
+      window.tf.engine().disposeVariables();
+    } catch (err) {
+      console.error("TensorFlow.js 변수 정리 중 오류 발생:", err);
+    }
+  }
+});
+
+// 컴포넌트 로드 시 실행
+onMounted(async () => {
+  try {
+    await loadScript(
+      "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
+    );
+    await loadScript(
+      "https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"
+    );
+
+    await initModel();
+  } catch (err) {
+    error.value = "초기화 중 오류가 발생했습니다.";
+    console.error("초기화 오류:", err);
+  }
+});
+
+// 스크립트 동적 로드 함수
 const loadScript = (src) => {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
@@ -199,39 +233,6 @@ const loadScript = (src) => {
     document.head.appendChild(script);
   });
 };
-
-onUnmounted(() => {
-  if (model) {
-    model.dispose();
-  }
-
-  if (window.tf) {
-    try {
-      window.tf.engine().disposeVariables();
-      console.log("TensorFlow.js 변수 정리 완료");
-    } catch (err) {
-      console.error("TensorFlow.js 변수 정리 중 오류 발생:", err);
-    }
-  }
-});
-
-onMounted(async () => {
-  try {
-    console.log("스크립트 로딩 시작");
-    await loadScript(
-      "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
-    );
-    await loadScript(
-      "https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"
-    );
-    console.log("스크립트 로딩 완료");
-
-    await initModel();
-  } catch (err) {
-    error.value = "초기화 중 오류가 발생했습니다.";
-    console.error("초기화 오류:", err);
-  }
-});
 </script>
 
 <style>
