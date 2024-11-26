@@ -25,7 +25,7 @@ const route = useRoute();
 
 <style scoped>
 main {
-  padding-top: 3rem;
+  padding-top: 4rem;
   position: relative;
   min-height: 700px;
 }

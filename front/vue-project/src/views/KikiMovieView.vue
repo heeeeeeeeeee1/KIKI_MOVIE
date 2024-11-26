@@ -90,7 +90,7 @@ export default defineComponent({
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  animation: rotate-z 3s infinite alternate;
+  animation: rotate-z 6s infinite alternate;
 }
 
 .circle-container.paused {
@@ -125,7 +125,7 @@ export default defineComponent({
   70% {
     transform: rotateZ(270deg);
   }
-  10% {
+  100% {
     transform: rotateZ(0deg);
   }
 }
