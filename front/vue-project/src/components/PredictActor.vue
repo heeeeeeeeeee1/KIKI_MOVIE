@@ -10,14 +10,21 @@
       <div class="teachable-content">
         <section class="upload-img-container">
           <h3 class="mb-3">얼굴 사진을 올려주세요</h3>
-          <input type="file" @change="handleImageUpload" accept="image/*"
-            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+          <input
+            type="file"
+            @change="handleImageUpload"
+            accept="image/*"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          />
           <div v-if="imageUrl" class="img-container">
-            <img ref="imagePreview" :src="imageUrl" alt="uploaded image" @load="analyzeImage" />
+            <img
+              ref="imagePreview"
+              :src="imageUrl"
+              alt="uploaded image"
+              @load="analyzeImage"
+            />
           </div>
-          <div v-else class="none-img-container">
-            이미지를 업로드해주세요.
-          </div>
+          <div v-else class="none-img-container">이미지를 업로드해주세요.</div>
         </section>
         <section v-if="topPrediction" class="moveto-container">
           <div class="container">
@@ -34,7 +41,9 @@
             <h4 class="font-bold mt-4 movie-info-title">출연 영화</h4>
             <ul v-if="movies.length > 0">
               <li v-for="movie in movies" :key="movie.id">
-                {{ movie.title }} ({{ new Date(movie.release_date).getFullYear() }})
+                {{ movie.title }} ({{
+                  new Date(movie.release_date).getFullYear()
+                }})
               </li>
             </ul>
             <p v-else class="mt-5">출연 영화 정보를 찾을 수 없습니다.</p>
@@ -279,7 +288,7 @@ const loadScript = (src) => {
   padding: 2rem 2rem;
 }
 
-.upload-img-container>input {
+.upload-img-container > input {
   margin-bottom: 2rem;
 }
 
@@ -348,6 +357,8 @@ const loadScript = (src) => {
 /* CSS 화살표 대신 실제 화살표 문자 사용 */
 .arrow::after {
   content: "→";
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 .result-container {
@@ -361,7 +372,7 @@ const loadScript = (src) => {
   padding: 2rem 2rem;
 }
 
-.result-container>h3 {
+.result-container > h3 {
   text-align: center;
 }
 .movie-info-title {
@@ -369,8 +380,8 @@ const loadScript = (src) => {
   text-align: center;
   margin-bottom: 2rem;
 }
-.result-container>.done-predict,
-.result-container>.yet-predict {
+.result-container > .done-predict,
+.result-container > .yet-predict {
   min-height: 400px;
 }
 .actor-predict {
@@ -379,7 +390,7 @@ const loadScript = (src) => {
   margin: 3rem 0;
   text-decoration: underline;
 }
-.result-container>.yet-predict {
+.result-container > .yet-predict {
   padding: 300px 0;
 }
 </style>

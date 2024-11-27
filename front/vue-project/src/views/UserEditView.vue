@@ -54,7 +54,7 @@
 
     <div class="btn-group">
       <div class="left-btn">
-        <button class="drop-btn" @click.prevent="dropAccount">회원탈퇴</button>
+        <button class="drop-btn" @click.prevent="dropAccount"></button>
       </div>
       <div class="right-btn">
         <button class="update-btn" @click="updateProfile">수정</button>

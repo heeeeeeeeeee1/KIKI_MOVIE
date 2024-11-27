@@ -273,54 +273,135 @@ export const getPopularActors = async (page = 1) => {
   }
 };
 
-export const getMoviesByActor = async (actorId) => {
-  // 장르 데이터가 없으면 먼저 가져오기
-  if (Object.keys(genreMap.value).length === 0) {
-    await fetchGenres();
+const searchActor = async (actorName) => {
+  try {
+    console.group(`배우 검색: "${actorName}"`);
+
+    const response = await axios.get(`${BASE_URL}/search/person`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        query: actorName,
+        language: "ko-KR",
+        include_adult: false,
+      },
+    });
+
+    if (!response.data.results || response.data.results.length === 0) {
+      console.warn(`배우 "${actorName}" 검색 결과 없음`);
+      console.groupEnd();
+      throw new Error(`배우 "${actorName}"를 찾을 수 없습니다.`);
+    }
+
+    const actor = response.data.results[0];
+    console.log("검색된 배우 정보:", {
+      id: actor.id,
+      name: actor.name,
+      known_for_department: actor.known_for_department,
+      popularity: actor.popularity,
+    });
+
+    console.groupEnd();
+    return actor.id;
+  } catch (error) {
+    console.error("배우 검색 실패:", error);
+    console.groupEnd();
+    throw new Error("배우 검색에 실패했습니다.");
+  }
+};
+
+export const getMoviesByActor = async (actorNameOrId) => {
+  console.group(`영화 검색 시작: ${actorNameOrId}`);
+  let actorId = actorNameOrId;
+  let actorName = typeof actorNameOrId === "string" ? actorNameOrId : null;
+
+  // actorNameOrId가 숫자가 아니면 배우 이름으로 간주하고 검색
+  if (isNaN(actorNameOrId)) {
+    try {
+      actorId = await searchActor(actorNameOrId);
+      console.log(`배우 이름 "${actorNameOrId}"의 TMDB ID: ${actorId}`);
+    } catch (error) {
+      console.error("배우 검색 실패:", error);
+      console.groupEnd();
+      return [];
+    }
+  } else {
+    // ID로 배우 정보 가져오기
+    try {
+      const actorResponse = await axios.get(`${BASE_URL}/person/${actorId}`, {
+        params: {
+          api_key: TMDB_API_KEY,
+          language: "ko-KR",
+        },
+      });
+      actorName = actorResponse.data.name;
+      console.log(`TMDB ID ${actorId}의 배우 이름: ${actorName}`);
+    } catch (error) {
+      console.error("배우 정보 가져오기 실패:", error);
+    }
   }
 
   try {
+    console.log(`필모그래피 검색 시작 - ID: ${actorId}, 이름: ${actorName}`);
+
     const response = await axios.get(
       `${BASE_URL}/person/${actorId}/movie_credits`,
       {
         params: {
           api_key: TMDB_API_KEY,
-          language: "ko-KR", // 언어를 한국어로 설정
+          language: "ko-KR",
         },
       }
     );
 
-    console.log("TMDB API 응답 데이터:", response.data.cast);
-
     if (!response.data.cast || response.data.cast.length === 0) {
-      console.error("출연 영화 정보가 없습니다.");
+      console.warn("출연 영화 정보가 없습니다.");
+      console.groupEnd();
       return [];
     }
 
-    const uniqueMovies = response.data.cast.filter(
-      (movie, index, self) => index === self.findIndex((m) => m.id === movie.id)
+    console.log(`전체 출연작 수: ${response.data.cast.length}`);
+
+    // 중복 제거 및 필터링
+    const uniqueMovies = response.data.cast
+      .filter(
+        (movie, index, self) =>
+          index === self.findIndex((m) => m.id === movie.id) &&
+          movie.release_date && // 개봉일이 있는 영화만
+          movie.title // 제목이 있는 영화만
+      )
+      .sort((a, b) => {
+        // 1. 개봉일 기준 최신순
+        const dateA = new Date(a.release_date || "1900-01-01");
+        const dateB = new Date(b.release_date || "1900-01-01");
+        return dateB - dateA;
+      })
+      .slice(0, 10); // 최신 영화 10개만 선택
+
+    console.log(`필터링 후 영화 수: ${uniqueMovies.length}`);
+    console.log(
+      "선택된 영화 목록:",
+      uniqueMovies.map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        release_date: movie.release_date,
+      }))
     );
 
-    const sortedMovies = uniqueMovies
-      .sort((a, b) => b.popularity - a.popularity)
-      .slice(0, 5);  // 상위 5개 영화만 선택
-
-    return sortedMovies;
-    // 인기순으로 정렬
-    //const sortedMovies = uniqueMovies.sort(
-    //  (a, b) => b.popularity - a.popularity
-    //);
-
-    // 성인 콘텐츠 체크와 장르 정보를 포함하여 데이터 매핑
-    const moviesWithAdultCheck = sortedMovies.map((movie) => ({
-      ...movie,
-      adult: checkAdultContent(movie),
-      genres: convertGenreIdsToNames(movie.genre_ids),
+    // 필요한 정보만 매핑
+    const result = uniqueMovies.map((movie) => ({
+      id: movie.id,
+      title: movie.title,
+      release_date: movie.release_date,
+      character: movie.character,
+      poster_path: movie.poster_path,
+      overview: movie.overview,
     }));
 
-    return moviesWithAdultCheck;
+    console.groupEnd();
+    return result;
   } catch (error) {
-    console.error("Failed to fetch movies by actor:", error);
+    console.error("영화 정보 가져오기 실패:", error);
+    console.groupEnd();
     throw new Error("배우의 출연 영화를 가져오는 데 실패했습니다.");
   }
 };
