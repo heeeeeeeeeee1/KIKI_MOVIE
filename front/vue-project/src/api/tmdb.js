@@ -338,6 +338,24 @@ const searchActor = async (actorName) => {
   }
 };
 
+
+// 배우 프로필 정보 가져오기
+export const getActorDetails = async (actorId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/person/${actorId}`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: "ko-KR",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("배우 프로필 정보 가져오기 실패:", error);
+    throw new Error("배우의 프로필 정보를 가져오는 데 실패했습니다.");
+  }
+};
+
+
 export const getMoviesByActor = async (actorNameOrId) => {
   console.group(`영화 검색 시작: ${actorNameOrId}`);
   let actorId = actorNameOrId;

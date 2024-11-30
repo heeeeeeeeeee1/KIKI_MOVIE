@@ -33,6 +33,13 @@
         </section>
         <section class="result-container">
           <h3 class="mb-3">당신이 닮은 배우는?</h3>
+          <div v-if="actorProfile" class="actor-profile">
+            <img
+              :src="actorProfile.profile_path ? 'https://image.tmdb.org/t/p/w500' + actorProfile.profile_path : '/default-profile.png'"
+              alt="Actor Profile"
+              class="actor-photo"
+            />
+          </div>
           <div v-if="topPrediction" class="done-predict">
             <p class="actor-predict">
               {{ topPrediction.className }} -
@@ -60,7 +67,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { getActorId } from "../api/actorMapping";
-import { getMoviesByActor } from "../api/tmdb";
+import { getMoviesByActor, getActorDetails } from "../api/tmdb";
 
 const error = ref(null);
 const imageUrl = ref(null);
@@ -68,62 +75,11 @@ const imagePreview = ref(null);
 const predictions = ref([]);
 const topPrediction = ref(null);
 const movies = ref([]);
+const actorProfile = ref(null); // 배우 프로필 정보 저장
 
 let model = null;
 const modelPath = ref("/models/my-model/");
 
-// 이미지 리사이즈 함수
-const resizeImage = (file, width, height) => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const reader = new FileReader();
-
-    reader.onload = (event) => {
-      img.src = event.target.result;
-    };
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx) {
-        reject(new Error("2D context를 생성할 수 없습니다."));
-        return;
-      }
-
-      try {
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              resolve(URL.createObjectURL(blob));
-            } else {
-              reject(new Error("Blob 생성에 실패했습니다."));
-            }
-          },
-          "image/jpeg",
-          0.8
-        );
-      } catch (err) {
-        reject(new Error("이미지 처리 중 오류가 발생했습니다: " + err.message));
-      }
-    };
-
-    img.onerror = () => {
-      reject(new Error("이미지 로드 중 오류가 발생했습니다."));
-    };
-    reader.onerror = () => {
-      reject(new Error("파일 읽기 중 오류가 발생했습니다."));
-    };
-
-    reader.readAsDataURL(file);
-  });
-};
-
-// 이미지 업로드 처리
 const handleImageUpload = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -141,16 +97,15 @@ const handleImageUpload = async (event) => {
   error.value = null;
 
   try {
-    console.log("이미지 리사이즈 시작");
-    imageUrl.value = await resizeImage(file, 224, 224);
-    console.log("이미지 리사이즈 완료");
+    const reader = new FileReader();
+    reader.onload = (e) => (imageUrl.value = e.target.result);
+    reader.readAsDataURL(file); // 이미지를 그대로 로드하여 표시
   } catch (err) {
-    error.value = "이미지 리사이즈 중 오류가 발생했습니다: " + err.message;
-    console.error("이미지 리사이즈 오류:", err);
+    error.value = "이미지 로드 중 오류가 발생했습니다: " + err.message;
+    console.error("이미지 로드 오류:", err);
   }
 };
 
-// 이미지 분석
 const analyzeImage = async () => {
   if (!model || !imagePreview.value) {
     error.value = "모델이 준비되지 않았습니다.";
@@ -158,31 +113,24 @@ const analyzeImage = async () => {
   }
 
   try {
-    console.log("이미지 분석 시작");
     const results = await model.predict(imagePreview.value);
     predictions.value = results.sort((a, b) => b.probability - a.probability);
 
     if (predictions.value.length > 0) {
       topPrediction.value = predictions.value[0];
-      console.log("닮은 배우 예측:", topPrediction.value);
-
       const actorId = getActorId(topPrediction.value?.className);
-      console.log("TMDB 배우 ID:", actorId);
 
       if (actorId) {
+        actorProfile.value = await getActorDetails(actorId);
         movies.value = await getMoviesByActor(actorId);
-        console.log("출연 영화 데이터:", movies.value);
-      } else {
-        error.value = "TMDB에서 배우 정보를 찾을 수 없습니다.";
       }
     }
   } catch (err) {
     error.value = "이미지 분석 중 오류가 발생했습니다.";
-    console.error("분석 오류:", err);
+    console.error(err);
   }
 };
 
-// 모델 초기화
 const initModel = async () => {
   if (!window.tmImage) {
     error.value = "Teachable Machine 라이브러리가 아직 로드되지 않았습니다.";
@@ -190,55 +138,16 @@ const initModel = async () => {
   }
 
   try {
-    console.log("모델 로드 시작");
     const modelURL = `${modelPath.value}model.json`;
     const metadataURL = `${modelPath.value}metadata.json`;
 
     model = await window.tmImage.load(modelURL, metadataURL);
-    console.log("모델 로드 성공");
   } catch (err) {
-    model = null; // 초기화 실패 시 null 설정
-    error.value = "모델을 불러오는 중 오류가 발생했습니다.";
-    console.error("모델 로드 오류:", err);
+    model = null;
+    error.value = "모델 로드 중 오류가 발생했습니다.";
   }
 };
 
-// 컴포넌트가 소멸될 때 모델 정리
-onUnmounted(() => {
-  if (model && typeof model.dispose === "function") {
-    model.dispose();
-    console.log("모델 정리 완료");
-  } else {
-    console.log("모델이 초기화되지 않았거나 이미 정리되었습니다.");
-  }
-
-  if (window.tf) {
-    try {
-      window.tf.engine().disposeVariables();
-    } catch (err) {
-      console.error("TensorFlow.js 변수 정리 중 오류 발생:", err);
-    }
-  }
-});
-
-// 컴포넌트 로드 시 실행
-onMounted(async () => {
-  try {
-    await loadScript(
-      "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
-    );
-    await loadScript(
-      "https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"
-    );
-
-    await initModel();
-  } catch (err) {
-    error.value = "초기화 중 오류가 발생했습니다.";
-    console.error("초기화 오류:", err);
-  }
-});
-
-// 스크립트 동적 로드 함수
 const loadScript = (src) => {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
@@ -248,6 +157,27 @@ const loadScript = (src) => {
     document.head.appendChild(script);
   });
 };
+
+onMounted(async () => {
+  try {
+    await loadScript(
+      "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
+    );
+    await loadScript(
+      "https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"
+    );
+    await initModel();
+  } catch (err) {
+    error.value = "초기화 중 오류가 발생했습니다.";
+    console.error(err);
+  }
+});
+
+onUnmounted(() => {
+  if (model && typeof model.dispose === "function") {
+    model.dispose();
+  }
+});
 </script>
 
 <style scoped>
@@ -292,12 +222,14 @@ const loadScript = (src) => {
   margin-bottom: 2rem;
 }
 
-.img-container {
+.img-container,
+.actor-profile {
   width: 100%;
   min-height: 500px;
 }
 
-.img-container img {
+.img-container img,
+.actor-profile img {
   width: 100%;
 }
 
@@ -384,6 +316,8 @@ const loadScript = (src) => {
 .result-container > .yet-predict {
   min-height: 400px;
 }
+
+
 .actor-predict {
   font-size: 1.5rem;
   text-align: center;
