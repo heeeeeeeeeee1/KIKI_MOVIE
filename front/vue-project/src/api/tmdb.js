@@ -390,42 +390,130 @@ export const getMoviesByActor = async (actorNameOrId) => {
 
     console.log(`전체 출연작 수: ${response.data.cast.length}`);
 
-    // 중복 제거 및 필터링
-    const uniqueMovies = response.data.cast
+    // 영화 세부 정보를 가져오는 함수
+    const getMovieDetails = async (movieId) => {
+      try {
+        // 영화 상세 정보와 크레딧 정보를 병렬로 가져오기
+        const [detailsResponse, creditsResponse] = await Promise.all([
+          axios.get(`${BASE_URL}/movie/${movieId}`, {
+            params: {
+              api_key: TMDB_API_KEY,
+              language: "ko-KR",
+            },
+          }),
+          axios.get(`${BASE_URL}/movie/${movieId}/credits`, {
+            params: {
+              api_key: TMDB_API_KEY,
+              language: "ko-KR",
+            },
+          })
+        ]);
+
+        const actors = creditsResponse.data.cast
+          ?.slice(0, 5)
+          .map(actor => ({
+            id: actor.id,
+            name: actor.name,
+            profile_path: actor.profile_path,
+            character: actor.character
+          })) || [];
+
+        const directors = creditsResponse.data.crew
+          ?.filter(person => person.job === 'Director')
+          .map(director => ({
+            id: director.id,
+            name: director.name,
+            profile_path: director.profile_path
+          })) || [];
+
+        return {
+          ...detailsResponse.data,
+          actors,
+          directors
+        };
+      } catch (error) {
+        console.error(`영화 ID ${movieId}의 세부 정보 가져오기 실패:`, error);
+        return null;
+      }
+    };
+
+    // 중복 제거 및 기본 필터링
+    const filteredMovies = response.data.cast
       .filter(
         (movie, index, self) =>
           index === self.findIndex((m) => m.id === movie.id) &&
           movie.release_date && // 개봉일이 있는 영화만
           movie.title // 제목이 있는 영화만
-      )
-      .sort((a, b) => {
-        // 1. 개봉일 기준 최신순
-        const dateA = new Date(a.release_date || "1900-01-01");
-        const dateB = new Date(b.release_date || "1900-01-01");
-        return dateB - dateA;
-      })
-      .slice(0, 10); // 최신 영화 10개만 선택
+      );
 
-    console.log(`필터링 후 영화 수: ${uniqueMovies.length}`);
-    console.log(
-      "선택된 영화 목록:",
-      uniqueMovies.map((movie) => ({
-        id: movie.id,
-        title: movie.title,
-        release_date: movie.release_date,
-      }))
+    // 각 영화의 세부 정보 가져오기
+    const moviesWithDetails = await Promise.all(
+      filteredMovies.map(async (movie) => {
+        const details = await getMovieDetails(movie.id);
+        if (!details) return null;
+        return {
+          ...movie,
+          ...details,
+          character: movie.character  // 출연 캐릭터 정보 보존
+        };
+      })
     );
 
-    // 필요한 정보만 매핑
-    const result = uniqueMovies.map((movie) => ({
-      id: movie.id,
-      title: movie.title,
-      release_date: movie.release_date,
-      character: movie.character,
-      poster_path: movie.poster_path,
-      overview: movie.overview,
-    }));
+    // null 값 제거
+    const validMovies = moviesWithDetails.filter(movie => movie !== null);
 
+    // 점수 계산 함수
+    const calculateScore = (movie) => {
+      const popularityWeight = 0.6; // 인기도 가중치
+      const ratingWeight = 0.3; // 평점 가중치
+      const recentWeight = 0.1; // 최신작 가중치
+
+      // 개봉일 점수 계산 (최근 5년 기준)
+      const today = new Date();
+      const releaseDate = new Date(movie.release_date);
+      const yearDiff = today.getFullYear() - releaseDate.getFullYear();
+      const recencyScore = Math.max(0, (5 - yearDiff) / 5); // 0-1 사이 값
+
+      // 평점 점수 (vote_count가 일정 수 이상인 경우만 반영)
+      const ratingScore = movie.vote_count > 50 ? movie.vote_average / 10 : 0.5;
+
+      // 최종 점수 계산
+      return (movie.popularity / 100) * popularityWeight + // 인기도 점수
+             ratingScore * ratingWeight + // 평점 점수
+             recencyScore * recentWeight; // 최신작 점수
+    };
+
+    // 점수 기반 정렬 및 상위 10개 선택
+    const result = validMovies
+      .map((movie) => ({
+        ...movie,
+        score: calculateScore(movie),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+      .map((movie) => ({
+        id: movie.id,
+        tmdb_id: movie.id,
+        title: movie.title,
+        original_title: movie.original_title || '',
+        description: movie.overview || '',
+        poster_path: movie.poster_path || '',
+        release_date: movie.release_date || '',
+        vote_average: movie.vote_average || 0,
+        popularity: movie.popularity || 0,
+        video_path: '',
+        runtime: String(movie.runtime || '0'),
+        status: movie.status || 'Released',
+        tagline: movie.tagline || '',
+        adult: movie.adult || false,
+        genres: movie.genres?.map(genre => genre.name) || [],
+        actors: movie.actors || [],
+        directors: movie.directors || [],
+        character: movie.character,
+        overview: movie.overview
+      }));
+
+    console.log("선별된 영화 목록:", result);
     console.groupEnd();
     return result;
   } catch (error) {

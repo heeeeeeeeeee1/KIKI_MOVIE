@@ -34,19 +34,38 @@
         <section class="result-container">
           <h3 class="mb-3">당신이 닮은 배우는?</h3>
           <div v-if="topPrediction" class="done-predict">
-            <p class="actor-predict">
-              {{ topPrediction.className }} -
-              {{ (topPrediction.probability * 100).toFixed(2) }}%
-            </p>
+            <div class="actor-info">
+              <img
+                v-if="actorImage"
+                :src="actorImage"
+                :alt="topPrediction.className"
+                class="actor-image"
+              />
+              <p class="actor-predict">
+                {{ topPrediction.className }} -
+                {{ (topPrediction.probability * 100).toFixed(2) }}%
+              </p>
+            </div>
             <h4 class="font-bold mt-4 movie-info-title">출연 영화</h4>
             <ul v-if="movies.length > 0">
-              <li v-for="movie in movies" :key="movie.id">
-                {{ movie.title }} ({{
-                  new Date(movie.release_date).getFullYear()
-                }})
+              <li 
+                v-for="movie in displayMovies" 
+                :key="movie.id"
+                @click="handleMovieClick(movie)"
+                class="movie-item"
+              >
+                {{ movie.title }} ({{ new Date(movie.release_date).getFullYear() }})
               </li>
             </ul>
-            <p v-else class="mt-5">출연 영화 정보를 찾을 수 없습니다.</p>
+            <div v-if="movies.length > 3" class="text-center mt-4">
+              <button 
+                @click="showAllMovies = !showAllMovies"
+                class="toggle-button"
+              >
+                {{ showAllMovies ? '접기' : '더보기' }}
+              </button>
+            </div>
+            <p v-else-if="movies.length === 0" class="mt-5">출연 영화 정보를 찾을 수 없습니다.</p>
           </div>
           <div v-else class="yet-predict">
             <p>이미지를 업로드하고 분석을 시작해주세요.</p>
@@ -58,9 +77,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { getActorId } from "../api/actorMapping";
 import { getMoviesByActor } from "../api/tmdb";
+import { useMovieStore } from "../stores/movieStore";
+import { useRouter } from 'vue-router';
+import axios from "axios";
 
 const error = ref(null);
 const imageUrl = ref(null);
@@ -68,9 +90,45 @@ const imagePreview = ref(null);
 const predictions = ref([]);
 const topPrediction = ref(null);
 const movies = ref([]);
+const actorImage = ref(null);
+const showAllMovies = ref(false);
+const movieStore = useMovieStore();
+const router = useRouter();
 
 let model = null;
 const modelPath = ref("/models/my-model/");
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+const BASE_URL = "https://api.themoviedb.org/3";
+
+// computed 속성 추가
+const displayMovies = computed(() => {
+  return showAllMovies.value ? movies.value : movies.value.slice(0, 3);
+});
+
+// 배우 이미지를 가져오는 함수
+const fetchActorImage = async (actorId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/person/${actorId}`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: "ko-KR",
+      },
+    });
+    
+    console.log("배우 정보:", response.data);
+    
+    if (response.data.profile_path) {
+      actorImage.value = `https://image.tmdb.org/t/p/w300${response.data.profile_path}`;
+      console.log("배우 이미지 URL:", actorImage.value);
+    } else {
+      actorImage.value = null;
+      console.log("배우 이미지가 없습니다.");
+    }
+  } catch (err) {
+    console.error("배우 이미지 가져오기 실패:", err);
+    actorImage.value = null;
+  }
+};
 
 // 이미지 리사이즈 함수
 const resizeImage = (file, width, height) => {
@@ -170,6 +228,7 @@ const analyzeImage = async () => {
       console.log("TMDB 배우 ID:", actorId);
 
       if (actorId) {
+        await fetchActorImage(actorId);
         movies.value = await getMoviesByActor(actorId);
         console.log("출연 영화 데이터:", movies.value);
       } else {
@@ -179,6 +238,23 @@ const analyzeImage = async () => {
   } catch (err) {
     error.value = "이미지 분석 중 오류가 발생했습니다.";
     console.error("분석 오류:", err);
+  }
+};
+
+// 영화 클릭 핸들러
+const handleMovieClick = async (movie) => {
+  try {
+    console.log('영화 클릭:', movie);
+    const savedMovie = await movieStore.createOrGetMovie(movie);
+    if (!savedMovie) {
+      console.error('영화 저장/조회 실패');
+      return;
+    }
+    
+    localStorage.setItem('redirectMovieId', savedMovie.id);
+    window.location.href = `/movies/${savedMovie.id}`;
+  } catch (error) {
+    console.error('영화 상세 페이지 이동 중 오류:', error);
   }
 };
 
@@ -197,31 +273,35 @@ const initModel = async () => {
     model = await window.tmImage.load(modelURL, metadataURL);
     console.log("모델 로드 성공");
   } catch (err) {
-    model = null; // 초기화 실패 시 null 설정
+    model = null;
     error.value = "모델을 불러오는 중 오류가 발생했습니다.";
     console.error("모델 로드 오류:", err);
   }
 };
 
-// 컴포넌트가 소멸될 때 모델 정리
-onUnmounted(() => {
-  if (model && typeof model.dispose === "function") {
-    model.dispose();
-    console.log("모델 정리 완료");
-  } else {
-    console.log("모델이 초기화되지 않았거나 이미 정리되었습니다.");
-  }
-
-  if (window.tf) {
-    try {
-      window.tf.engine().disposeVariables();
-    } catch (err) {
-      console.error("TensorFlow.js 변수 정리 중 오류 발생:", err);
+// 컴포넌트가 소멸되기 전에 모델 정리
+onBeforeUnmount(() => {
+  try {
+    if (model && typeof model.dispose === "function") {
+      model.dispose();
+      console.log("모델 정리 완료");
+    } else {
+      console.log("모델이 초기화되지 않았거나 이미 정리되었습니다.");
     }
+
+    if (window.tf) {
+      try {
+        window.tf.engine().disposeVariables();
+      } catch (err) {
+        console.error("TensorFlow.js 변수 정리 중 오류 발생:", err);
+      }
+    }
+  } catch (error) {
+    console.error("모델 정리 중 오류 발생:", error);
   }
 });
 
-// 컴포넌트 로드 시 실행
+// 컴포넌트 초기화
 onMounted(async () => {
   try {
     await loadScript(
@@ -354,7 +434,6 @@ const loadScript = (src) => {
   }
 }
 
-/* CSS 화살표 대신 실제 화살표 문자 사용 */
 .arrow::after {
   content: "→";
   font-size: 2rem;
@@ -375,22 +454,82 @@ const loadScript = (src) => {
 .result-container > h3 {
   text-align: center;
 }
+
 .movie-info-title {
   font-size: 1.5rem;
   text-align: center;
   margin-bottom: 2rem;
 }
+
 .result-container > .done-predict,
 .result-container > .yet-predict {
   min-height: 400px;
+  width: 100%;
 }
+
+.actor-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.actor-image {
+  width: 200px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .actor-predict {
   font-size: 1.5rem;
   text-align: center;
-  margin: 3rem 0;
+  margin: 1rem 0;
   text-decoration: underline;
 }
+
 .result-container > .yet-predict {
   padding: 300px 0;
+}
+
+.movie-item {
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--dark-gray);
+}
+
+.movie-item:last-child {
+  border-bottom: none;
+}
+
+.movie-item:hover {
+  background-color: var(--dark-gray);
+  border-radius: 4px;
+}
+
+.toggle-button {
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 1px solid var(--dark-gray);
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-button:hover {
+  background-color: var(--dark-gray);
+}
+
+ul {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  text-align: center;
 }
 </style>
