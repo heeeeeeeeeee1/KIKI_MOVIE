@@ -178,16 +178,22 @@ export default {
       setTimeout(checkOverflow, 0);
     };
 
-    const goToMovieDetail = async () => {
-      if (!selectedMovie.value) return;
-      
+    const goToMovieDetail = async (movie) => {
+      if (!movie) return;
+
       try {
-        const movie = await movieStore.createOrGetMovie(selectedMovie.value);
-        router.push(`/movies/${movie.id}`); // /detail 제거
-      } catch (error) {
-        console.error('영화 상세 페이지 이동 실패:', error);
+        // TMDB 영화 데이터를 Django에 저장 또는 가져오기
+        const savedMovie = await movieStore.createOrGetMovie(movie);
+        if (savedMovie && savedMovie.id) {
+          router.push({ name: "MovieDetailView", params: { moviePk: savedMovie.id } });
+        } else {
+          console.error("영화 저장 또는 가져오기 실패");
+        }
+      } catch (err) {
+        console.error("영화 상세 페이지 이동 실패:", err);
       }
     };
+
 
     const closeModal = () => {
       selectedMovie.value = null;

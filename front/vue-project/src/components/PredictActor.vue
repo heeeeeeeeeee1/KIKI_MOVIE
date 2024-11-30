@@ -47,10 +47,13 @@
             </p>
             <h4 class="font-bold mt-4 movie-info-title">출연 영화</h4>
             <ul v-if="movies.length > 0">
-              <li v-for="movie in movies" :key="movie.id">
-                {{ movie.title }} ({{
-                  new Date(movie.release_date).getFullYear()
-                }})
+              <li
+                v-for="movie in movies"
+                :key="movie.id"
+                @click="goToMovieDetail(movie.id)" 
+                 
+              >
+                {{ movie.title }} ({{ new Date(movie.release_date).getFullYear() }})
               </li>
             </ul>
             <p v-else class="mt-5">출연 영화 정보를 찾을 수 없습니다.</p>
@@ -68,7 +71,9 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { getActorId } from "../api/actorMapping";
 import { getMoviesByActor, getActorDetails } from "../api/tmdb";
+import { useRouter } from "vue-router"; // 추가
 
+const router = useRouter(); // 라우터 초기화
 const error = ref(null);
 const imageUrl = ref(null);
 const imagePreview = ref(null);
@@ -132,20 +137,21 @@ const analyzeImage = async () => {
 };
 
 const initModel = async () => {
-  if (!window.tmImage) {
-    error.value = "Teachable Machine 라이브러리가 아직 로드되지 않았습니다.";
-    return;
-  }
-
   try {
+    console.log("모델 초기화 중...");
     const modelURL = `${modelPath.value}model.json`;
     const metadataURL = `${modelPath.value}metadata.json`;
-
     model = await window.tmImage.load(modelURL, metadataURL);
-  } catch (err) {
+    console.log("모델 초기화 완료:", model);
+  } catch (error) {
+    console.error("모델 초기화 실패:", error);
     model = null;
-    error.value = "모델 로드 중 오류가 발생했습니다.";
   }
+};
+
+const goToMovieDetail = (movieId) => {
+  if (!movieId) return;
+  router.push({ name: "MovieDetailView", params: { moviePk: movieId } });
 };
 
 const loadScript = (src) => {
@@ -175,9 +181,28 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (model && typeof model.dispose === "function") {
-    model.dispose();
+    try {
+      model.dispose();
+      console.log("모델 메모리 해제 완료");
+    } catch (error) {
+      console.error("모델 메모리 해제 중 오류 발생:", error);
+    }
+  } else {
+    console.warn("모델이 이미 해제되었거나 유효하지 않습니다.");
+  }
+
+  // TensorFlow.js 관련 자원 정리
+  if (window.tf) {
+    try {
+      window.tf.engine().disposeVariables();
+      console.log("TensorFlow.js 변수 정리 완료");
+    } catch (err) {
+      console.error("TensorFlow.js 변수 정리 중 오류 발생:", err);
+    }
   }
 });
+
+
 </script>
 
 <style scoped>
@@ -319,11 +344,27 @@ onUnmounted(() => {
 
 
 .actor-predict {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   text-align: center;
   margin: 3rem 0;
   text-decoration: underline;
 }
+
+.movie-info-title {
+  font-size: 1.4rem;
+  text-align: center;
+  margin-bottom: 1rem; /* 아래 공간 줄이기 */
+}
+
+.result-container ul li {
+  margin-bottom: 10px; /* 목록 아이템 간의 간격 추가 */
+  line-height: 1.5; /* 줄 간격*/
+  font-size: 1.2rem;
+  color: yellow; /* 기본 텍스트 색상 */
+  cursor: pointer; /* 클릭 가능한 스타일 */
+  transition: color 0.3s; /* 색상 변경 시 부드러운 전환 */
+}
+
 .result-container > .yet-predict {
   padding: 300px 0;
 }
