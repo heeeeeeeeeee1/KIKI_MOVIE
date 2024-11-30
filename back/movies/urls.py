@@ -15,6 +15,11 @@ urlpatterns = [
     path('reviews/<int:review_pk>/comments/', views.create_comment),
     path('reviews/comments/<int:comment_pk>/', views.comment_detail),
 
+    path('tmdb/<int:tmdb_id>/', views.movie_tmdb),
+    path('tmdb/', views.movie_tmdb),
+    path('<int:movie_pk>/actors/', views.add_movie_actors),
+    path('<int:movie_pk>/genres/', views.add_movie_genres),
+    path('<int:movie_pk>/directors/', views.add_movie_directors),
     # path('movies/<int:movie_pk>/reviews/<int:review_pk>/comment/', views.comment_detail),
     # path('movies/<int:movie_pk>/reviews/<int:review_pk>/comment/<int:comment_pk>/', views.comment_detail),
 

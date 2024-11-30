@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
 
 from .models import *
 from .serializers import *
@@ -195,6 +196,131 @@ def comment_detail(request, comment_pk):
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+@api_view(['GET', 'POST'])
+def movie_tmdb(request, tmdb_id=None):
+    if request.method == 'GET':
+        movie = Movie.objects.filter(tmdb_id=tmdb_id).first()
+        if movie:
+            serializer = MovieSerializer(movie)
+            return Response(serializer.data)
+        return Response({"error": "Movie not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    elif request.method == 'POST':
+        try:
+            print("받은 데이터:", request.data)
+            
+            existing_movie = Movie.objects.filter(id=request.data.get('id')).first()
+            if existing_movie:
+                serializer = MovieSerializer(existing_movie)
+                return Response(serializer.data)
+            
+            movie_data = request.data.copy()
+            
+            # 텍스트 필드에 대한 기본값 설정 (빈 문자열로)
+            movie_data.setdefault('video_path', '')  # TextField는 빈 문자열로
+            movie_data.setdefault('runtime', '0')
+            movie_data.setdefault('status', 'Released')
+            movie_data.setdefault('tagline', '')  # TextField는 빈 문자열로
+            movie_data.setdefault('popularity', 0.0)
+            movie_data.setdefault('adult', False)
+            movie_data.setdefault('created_at', timezone.now().date().isoformat())
+            
+            # 필수 필드가 없는 경우 빈 값으로 설정
+            if not movie_data.get('description'):
+                movie_data['description'] = ''  # TextField는 빈 문자열로
+            
+            print("처리된 데이터:", movie_data)
+            
+            serializer = MovieSerializer(data=movie_data)
+            if not serializer.is_valid():
+                print("유효성 검사 오류:", serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            movie = serializer.save()
+            
+            # 장르 정보가 있다면 처리
+            if 'genres' in request.data and request.data['genres']:
+                for genre_name in request.data['genres']:
+                    genre, _ = Genre.objects.get_or_create(name=genre_name)
+                    movie.genres.add(genre)
+            
+            return Response(MovieSerializer(movie).data, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            print("예외 발생:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def add_movie_actors(request, movie_pk):
+    try:
+        movie = Movie.objects.get(pk=movie_pk)
+        actors_data = request.data.get('actors', [])
+        for actor_data in actors_data:
+            actor, created = Actor.objects.get_or_create(
+                id=actor_data.get('id'),
+                defaults={
+                    'name': actor_data.get('name'),
+                    'profile_path': actor_data.get('profile_path')
+                }
+            )
+            movie.actors.add(actor)
+        return Response(MovieSerializer(movie).data)
+    except Movie.DoesNotExist:
+        return Response({"error": "Movie not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def add_movie_genres(request, movie_pk):
+    try:
+        movie = Movie.objects.get(pk=movie_pk)
+        genres_data = request.data.get('genres', [])
+        print("Received genres data:", genres_data)  # 디버깅용 출력
+        
+        for genre_data in genres_data:
+            try:
+                # genres가 문자열 배열로 올 경우
+                if isinstance(genre_data, str):
+                    genre, _ = Genre.objects.get_or_create(name=genre_data)
+                # genres가 객체 배열로 올 경우
+                else:
+                    genre, _ = Genre.objects.get_or_create(
+                        name=genre_data.get('name', '')
+                    )
+                movie.genres.add(genre)
+                print(f"Added genre: {genre.name}")  # 디버깅용 출력
+            except Exception as e:
+                print(f"Error processing genre {genre_data}: {str(e)}")  # 디버깅용 출력
+                continue
+
+        serializer = MovieSerializer(movie)
+        return Response(serializer.data)
+    except Movie.DoesNotExist:
+        return Response({"error": "Movie not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"Error in add_movie_genres: {str(e)}")  # 디버깅용 출력
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+def add_movie_directors(request, movie_pk):
+    try:
+        movie = Movie.objects.get(pk=movie_pk)
+        directors_data = request.data.get('directors', [])
+        
+        for director_data in directors_data:
+            director, created = Director.objects.get_or_create(
+                id=director_data.get('id'),
+                defaults={
+                    'name': director_data.get('name'),
+                    'profile_path': director_data.get('profile_path')
+                }
+            )
+            movie.directors.add(director)
+            
+        return Response(MovieSerializer(movie).data)
+    except Movie.DoesNotExist:
+        return Response({"error": "Movie not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"Error adding directors: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 """
 # 이전에 만들었던 ReviewDetailView 관련 ####################################################
 # 특정 영화의 특정 리뷰 조회

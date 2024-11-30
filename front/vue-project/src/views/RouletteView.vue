@@ -93,7 +93,10 @@
             {{ isExpanded ? "접기" : "더보기" }}
           </button>
         </div>
-        <button class="modal-close-btn" @click="closeModal">닫기</button>
+        <div class="modal-buttons">
+          <button class="detail-btn" @click="goToMovieDetail">상세 정보 보기</button>
+          <button class="modal-close-btn" @click="closeModal">닫기</button>
+        </div>
       </div>
     </section>
   </div>
@@ -103,6 +106,8 @@
 import { ref, onMounted } from "vue";
 import { useTmdb } from "@/api/tmdb";
 import { Roulette } from "vue3-roulette";
+import { useRouter } from 'vue-router';
+import { useMovieStore } from '@/stores/movieStore';
 
 export default {
   name: "RouletteView",
@@ -110,6 +115,8 @@ export default {
     Roulette,
   },
   setup() {
+    const router = useRouter();
+    const movieStore = useMovieStore();
     const rouletteKey = ref(0);
     const items = ref([]);
     const wheel = ref(null);
@@ -137,14 +144,6 @@ export default {
       const randomPage = Math.floor(Math.random() * 500) + 1;
       await fetchPopularMovies(randomPage);
 
-      // 데이터 로드 직후 전체 영화 데이터 로깅
-      console.group("Original Movies Data");
-      console.log("Full movies array:", movies.value);
-      if (movies.value.length > 0) {
-        console.log("Sample movie with all properties:", movies.value[0]);
-      }
-      console.groupEnd();
-
       setTimeout(() => {
         const wheelItems = document.querySelectorAll(".wheel-item");
         wheelItems.forEach((item) => {
@@ -161,14 +160,6 @@ export default {
           </div>
         `,
       }));
-
-      // 매핑된 데이터 로깅
-      console.group("Mapped Items Data");
-      console.log("Mapped items:", items.value);
-      if (items.value.length > 0) {
-        console.log("Sample mapped item with all properties:", items.value[0]);
-      }
-      console.groupEnd();
     };
 
     const launchWheel = () => {
@@ -185,25 +176,17 @@ export default {
       isExpanded.value = false;
       showAdultImage.value = false;
       setTimeout(checkOverflow, 0);
+    };
 
-      // 선택된 영화 상세 로깅
-      console.group("Selected Movie Details");
-      console.log("Full movie object:", selectedMovie.value);
-
-      // 모든 속성을 깔끔하게 정렬하여 출력
-      const properties = Object.entries(selectedMovie.value).sort(
-        ([keyA], [keyB]) => keyA.localeCompare(keyB)
-      );
-
-      console.log("\nAll Properties:");
-      properties.forEach(([key, value]) => {
-        if (key !== "htmlContent") {
-          console.log(`${key}:`, value);
-        }
-      });
-
-      console.log("\nHTML Content:", selectedMovie.value.htmlContent);
-      console.groupEnd();
+    const goToMovieDetail = async () => {
+      if (!selectedMovie.value) return;
+      
+      try {
+        const movie = await movieStore.createOrGetMovie(selectedMovie.value);
+        router.push(`/movies/${movie.id}`); // /detail 제거
+      } catch (error) {
+        console.error('영화 상세 페이지 이동 실패:', error);
+      }
     };
 
     const closeModal = () => {
@@ -232,6 +215,7 @@ export default {
       wheelEndedCallback,
       closeModal,
       toggleOverview,
+      goToMovieDetail,
     };
   },
 };
@@ -441,7 +425,6 @@ export default {
   color: var(--hover-blue);
 }
 
-/* 그라데이션 효과 */
 .modal-overview:not(.expanded):not(.no-overview)::after {
   content: "";
   position: absolute;
@@ -459,7 +442,14 @@ export default {
   opacity: 0;
 }
 
-.modal-close-btn {
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.detail-btn, .modal-close-btn {
   background-color: var(--light-blue);
   color: white;
   border: none;
@@ -470,7 +460,7 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.modal-close-btn:hover {
+.detail-btn:hover, .modal-close-btn:hover {
   background-color: var(--hover-blue);
 }
 
@@ -493,7 +483,6 @@ export default {
   background: var(--hover-blue);
 }
 
-/* 에러와 로딩 메시지 스타일 */
 .error-message {
   color: #ff4444;
   font-size: 1rem;
@@ -506,7 +495,6 @@ export default {
   margin-top: 1rem;
 }
 
-/* 룰렛 포스터 이미지 스타일 */
 .roulette-poster {
   width: 200px;
   height: auto;
