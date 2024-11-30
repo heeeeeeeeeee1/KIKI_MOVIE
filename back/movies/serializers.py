@@ -113,6 +113,11 @@ class MovieSerializer(serializers.ModelSerializer):
     directors = DirectorListSerializer(many=True, read_only=True)
     keywords = KeywordListSerializer(many=True, read_only=True)
     videos = VideoListSerializer(many=True, read_only=True)
+    tmdb_id = serializers.IntegerField(required=False)
+    video_path = serializers.CharField(required=False, allow_blank=True)
+    tagline = serializers.CharField(required=False, allow_blank=True)
+    runtime = serializers.CharField(required=False, allow_blank=True)
+    description = serializers.CharField(required=False, allow_blank=True)
     
     # 해당 영화의 리뷰도 함께 가져오기
     class ReviewListSerializer(serializers.ModelSerializer):

@@ -42,6 +42,7 @@ class Video(models.Model): # 비디오 DB
 
 class Movie(models.Model):  # 영화 DB
     id = models.IntegerField(primary_key=True)
+    tmdb_id = models.IntegerField(unique=True, null=True)
     title = models.CharField(max_length=100)
     original_title = models.CharField(max_length=100)
     description = models.TextField()

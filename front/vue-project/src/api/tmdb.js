@@ -216,10 +216,11 @@ export function useTmdb() {
     if (Object.keys(genreMap.value).length === 0) {
       await fetchGenres();
     }
-
+  
     isLoading.value = true;
     error.value = null;
     try {
+      // 1. 기본 영화 목록 가져오기
       const response = await axios.get(`${BASE_URL}/movie/popular`, {
         params: {
           api_key: TMDB_API_KEY,
@@ -227,20 +228,48 @@ export function useTmdb() {
           language: "ko-KR",
         },
       });
-
-      // 성인 콘텐츠 체크를 포함하여 데이터 매핑
-      movies.value = response.data.results.map((movie) => ({
-        ...movie,
-        adult: checkAdultContent(movie),
-        genres: convertGenreIdsToNames(movie.genre_ids),
-      }));
-
-      console.log(
-        "영화 데이터 로드 완료. 첫 번째 영화의 장르:",
-        movies.value[0]?.genre_ids,
-        "->",
-        movies.value[0]?.genres
+  
+      // 2. 각 영화의 상세 정보와 크레딧 정보 가져오기
+      const moviesWithDetails = await Promise.all(
+        response.data.results.map(async (movie) => {
+          // 크레딧 정보 가져오기 (배우, 감독)
+          const creditResponse = await axios.get(`${BASE_URL}/movie/${movie.id}/credits`, {
+            params: {
+              api_key: TMDB_API_KEY,
+              language: "ko-KR",
+            },
+          });
+  
+          const actors = creditResponse.data.cast
+            ?.slice(0, 5)  // 상위 5명의 배우만
+            .map(actor => ({
+              id: actor.id,
+              name: actor.name,
+              profile_path: actor.profile_path,
+              character: actor.character
+            })) || [];
+  
+          const directors = creditResponse.data.crew
+            ?.filter(person => person.job === 'Director')
+            .map(director => ({
+              id: director.id,
+              name: director.name,
+              profile_path: director.profile_path
+            })) || [];
+  
+          return {
+            ...movie,
+            adult: checkAdultContent(movie),
+            genres: convertGenreIdsToNames(movie.genre_ids),
+            actors: actors,
+            directors: directors
+          };
+        })
       );
+  
+      movies.value = moviesWithDetails;
+  
+      console.log("영화 데이터 로드 완료. 첫 번째 영화:", movies.value[0]);
     } catch (err) {
       console.error("Failed to fetch movies:", err);
       error.value = err.message;
