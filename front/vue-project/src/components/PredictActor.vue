@@ -254,7 +254,7 @@ onUnmounted(() => {
 }
 
 .img-container img,
-.actor-profile img {
+.actor-profile img { 
   width: 100%;
 }
 

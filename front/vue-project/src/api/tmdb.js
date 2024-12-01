@@ -56,7 +56,7 @@ const checkAdultContent = (movie) => {
     "섹스",
     "성인",
     "adult",
-    "erotic",
+    "erotic", 
     "nude",
     "누드",
     "19금",
