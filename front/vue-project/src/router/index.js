@@ -89,7 +89,11 @@ const router = createRouter({
       name: "BoxOffice",
       component: boxOfficeSlide,
     },
-
+    {
+      path: '/reviews',
+      name: 'AllReviewsView',
+      component: () => import('@/views/AllReviewsView.vue')
+    }
     // {
     //   path: '/profile',
     //   name: 'UserProfileView',

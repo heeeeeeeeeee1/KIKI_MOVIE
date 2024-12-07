@@ -20,12 +20,8 @@ urlpatterns = [
     path('<int:movie_pk>/actors/', views.add_movie_actors),
     path('<int:movie_pk>/genres/', views.add_movie_genres),
     path('<int:movie_pk>/directors/', views.add_movie_directors),
-    # path('movies/<int:movie_pk>/reviews/<int:review_pk>/comment/', views.comment_detail),
-    # path('movies/<int:movie_pk>/reviews/<int:review_pk>/comment/<int:comment_pk>/', views.comment_detail),
 
-    # path('<int:movie_pk>/review/<int:review_pk>/', views.movie_review),
-    # path('review/<int:review_pk>/like/', views.toggle_like_review),
-    # CONFLICT > path('<int:movie_pk>/review/<int:review_pk>/', views.review_handler),
-    # CONFLICT > path('<int:movie_pk>/review/<int:review_pk>/comment/', views.comment_handler),
+    path('reviews/all/', views.all_reviews),
+    path('reviews/latest/<str:username>/', views.user_latest_review),
 ]
 
