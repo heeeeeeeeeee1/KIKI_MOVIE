@@ -15,6 +15,8 @@ export const useMovieStore = defineStore("movieStore", () => {
   const reviews = ref([]);
   const singleReview = ref(null);
   const isLoading = ref(false);
+  const allReviews = ref([]);
+  const latestUserReview = ref(null);
 
   // TMDB 영화를 Django DB에 저장하거나 조회하는 함수
   const createOrGetMovie = async (movieData) => {
@@ -281,12 +283,38 @@ export const useMovieStore = defineStore("movieStore", () => {
     });
   };
 
+  // 모든 리뷰 데이터 가져오기
+  const fetchAllReviews = async () => {
+    isLoading.value = true;
+    try {
+      const response = await axios.get(`${API_URL}/movies/reviews/all/`);
+      allReviews.value = response.data;
+    } catch (error) {
+      console.error('리뷰 데이터 로딩 실패:', error);
+      allReviews.value = [];
+    } finally {
+      isLoading.value = false;
+    }
+  };
+  
+  const fetchLatestUserReview = async (username) => {
+    try {
+      const response = await axios.get(`${API_URL}/movies/reviews/latest/${username}/`);
+      latestUserReview.value = response.data;
+    } catch (error) {
+      console.error('최신 리뷰 로딩 실패:', error);
+      latestUserReview.value = null;
+    }
+  };
+
   return {
     movie,
     movies,
     reviews,
     singleReview,
     API_URL,
+    allReviews,
+    latestUserReview,
     getMovie,
     fetchMovieReviews,
     toggleLikeReview,
@@ -299,5 +327,7 @@ export const useMovieStore = defineStore("movieStore", () => {
     deleteComment,
     toggleWishlist,
     createOrGetMovie,
+    fetchAllReviews,
+    fetchLatestUserReview,
   };
 });
