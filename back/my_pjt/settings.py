@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-q9(p58-l(w+%yzq_xn%e4^$wks$(-9w*-j9k1$r2t_0!#%mly=
 DEBUG = True
 
 # 서버 오류로 인한 추가
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'kiki-movie.onrender.com']
 
 
 # Application definition
