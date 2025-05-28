@@ -3,7 +3,6 @@ from django.views.decorators.csrf import csrf_exempt
 from PIL import Image, UnidentifiedImageError
 import os
 import numpy as np
-import tensorflow as tf
 import json
 import requests
 from django.conf import settings

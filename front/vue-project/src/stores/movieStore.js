@@ -5,7 +5,7 @@ import { useCounterStore } from "@/stores/counter";
 import { useRouter } from 'vue-router';
 
 export const useMovieStore = defineStore("movieStore", () => {
-  const API_URL = "http://127.0.0.1:8000";
+  const API_URL = import.meta.env.VITE_API_URL;
   const counterStore = useCounterStore();
   const router = useRouter();
   const token = computed(() => counterStore.token);

@@ -3,7 +3,7 @@ import axios from "axios";
 const KOFIC_API_KEY = import.meta.env.VITE_KOFIC_API_KEY;
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-const KOFIC_BASE_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/";
+const KOFIC_BASE_URL = "https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
 // 숫자 변환을 위한 매핑 테이블

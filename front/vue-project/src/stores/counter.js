@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 
 export const useCounterStore = defineStore('counter', () => {
-  const API_URL = 'http://127.0.0.1:8000'
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = ref(null)
   const username = ref('')
 

@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /profile/edit
+Disallow: /login
+Disallow: /signup
+
+Allow: /
+
+Sitemap: https://kiki-movie.vercel.app/sitemap.xml
